@@ -38,51 +38,51 @@ export default function GameOver() {
             isWinner ? 'text-yellow-400 glow-text' : 'text-red-400'
           }`}
         >
-          {isWinner ? 'VICTORY!' : 'DEFEAT'}
+          {isWinner ? '승리!' : '패배'}
         </h1>
 
         <p className="text-2xl text-gray-300 mb-8">
           {isWinner
             ? totalPlayers > 2
-              ? `You defeated ${totalPlayers - 1} opponents!`
-              : `You defeated ${opponentStates[0]?.name || 'opponent'}!`
+              ? `${totalPlayers - 1}명의 상대를 물리쳤습니다!`
+              : `${opponentStates[0]?.name || '상대'}를 물리쳤습니다!`
             : totalPlayers > 2
-            ? `${winner} wins!`
-            : `You lost to ${winner}!`}
+            ? `${winner} 승리!`
+            : `${winner}에게 졌습니다!`}
         </p>
 
         <div className="grid grid-cols-2 gap-8 mb-8">
           <div className="text-center">
-            <p className="text-gray-400 text-sm mb-1">Your Score</p>
+            <p className="text-gray-400 text-sm mb-1">내 점수</p>
             <p className="text-3xl font-bold text-white">{myState?.score?.toLocaleString() || 0}</p>
           </div>
           <div className="text-center">
-            <p className="text-gray-400 text-sm mb-1">Players</p>
+            <p className="text-gray-400 text-sm mb-1">플레이어</p>
             <p className="text-3xl font-bold text-gray-400">{totalPlayers}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-4 mb-8 text-center">
           <div>
-            <p className="text-gray-400 text-xs">Lines</p>
+            <p className="text-gray-400 text-xs">라인</p>
             <p className="text-xl font-bold text-cyan-400">{myState?.linesCleared || 0}</p>
           </div>
           <div>
-            <p className="text-gray-400 text-xs">Level</p>
+            <p className="text-gray-400 text-xs">레벨</p>
             <p className="text-xl font-bold text-purple-400">{myState?.level || 1}</p>
           </div>
           <div>
-            <p className="text-gray-400 text-xs">Max Combo</p>
+            <p className="text-gray-400 text-xs">최대 콤보</p>
             <p className="text-xl font-bold text-yellow-400">{myState?.combo || 0}</p>
           </div>
         </div>
 
         <div className="flex gap-4 justify-center">
           <button type="button" onClick={handlePlayAgain} className="btn-primary">
-            PLAY AGAIN
+            다시 하기
           </button>
           <button type="button" onClick={handleMainMenu} className="btn-secondary">
-            MAIN MENU
+            메인 메뉴
           </button>
         </div>
       </div>

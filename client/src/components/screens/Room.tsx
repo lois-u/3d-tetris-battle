@@ -25,7 +25,7 @@ export default function Room() {
   if (!currentRoom) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <p className="text-xl text-gray-400">Loading room...</p>
+        <p className="text-xl text-gray-400">방 불러오는 중...</p>
       </div>
     );
   }
@@ -43,20 +43,20 @@ export default function Room() {
       <div className="relative z-10 w-full max-w-2xl">
         <div className="flex items-center justify-between mb-8">
           <button type="button" onClick={handleLeaveRoom} className="btn-secondary">
-            ← Leave
+            ← 나가기
           </button>
-          <h1 className="text-4xl font-bold text-cyan-400 glow-text">GAME ROOM</h1>
+          <h1 className="text-4xl font-bold text-cyan-400 glow-text">게임 방</h1>
           <div className="w-24" />
         </div>
 
         <div className="panel-glow p-6 mb-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <p className="text-gray-400 text-sm">Room ID</p>
+              <p className="text-gray-400 text-sm">방 ID</p>
               <p className="text-lg font-mono text-white">{currentRoom.id.slice(0, 12)}...</p>
             </div>
             <div className="text-right">
-              <p className="text-gray-400 text-sm">Players</p>
+              <p className="text-gray-400 text-sm">플레이어</p>
               <p className="text-2xl font-bold text-cyan-400">
                 {currentRoom.players.length} / {currentRoom.maxPlayers}
               </p>
@@ -86,15 +86,15 @@ export default function Room() {
                       </div>
                       <p className="text-sm text-white truncate">{player.name}</p>
                       {index === 0 && (
-                        <span className="text-xs text-yellow-400">HOST</span>
+                        <span className="text-xs text-yellow-400">방장</span>
                       )}
                       {player.id === playerId && index !== 0 && (
-                        <span className="text-xs text-cyan-400">YOU</span>
+                        <span className="text-xs text-cyan-400">나</span>
                       )}
                     </>
                   ) : (
                     <div className="py-4">
-                      <p className="text-gray-500 text-sm">Waiting...</p>
+                      <p className="text-gray-500 text-sm">대기 중...</p>
                     </div>
                   )}
                 </div>
@@ -113,13 +113,13 @@ export default function Room() {
                   : 'bg-gray-700 text-gray-500 cursor-not-allowed'
               }`}
             >
-              {canStart ? 'START GAME' : `Need ${GAME_CONFIG.minPlayers - currentRoom.players.length} more player(s)`}
+              {canStart ? '게임 시작' : `${GAME_CONFIG.minPlayers - currentRoom.players.length}명 더 필요합니다`}
             </button>
           ) : (
             <div className="text-center py-4">
               <div className="inline-flex items-center gap-3">
                 <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-                <span className="text-lg text-cyan-400">Waiting for host to start...</span>
+                <span className="text-lg text-cyan-400">방장이 시작하기를 기다리는 중...</span>
               </div>
             </div>
           )}
@@ -127,7 +127,7 @@ export default function Room() {
 
         <div className="panel p-4">
           <p className="text-gray-400 text-sm text-center">
-            Share this room with friends to join the battle!
+            친구들과 함께 플레이하세요!
           </p>
         </div>
       </div>

@@ -8,12 +8,12 @@ export default function MainMenu() {
 
   const handlePlay = () => {
     if (!name.trim()) {
-      setError('Please enter your name');
+      setError('이름을 입력해주세요');
       return;
     }
 
     if (name.trim().length < 2) {
-      setError('Name must be at least 2 characters');
+      setError('이름은 최소 2자 이상이어야 합니다');
       return;
     }
 
@@ -31,16 +31,16 @@ export default function MainMenu() {
 
       <div className="relative z-10 text-center">
         <h1 className="text-7xl font-black mb-2 tetris-gradient bg-clip-text text-transparent">
-          3D TETRIS
+          3D 테트리스
         </h1>
         <h2 className="text-3xl font-bold text-cyan-400 glow-text mb-12 tracking-widest">
-          BATTLE
+          배틀
         </h2>
 
         <div className="panel-glow max-w-md mx-auto p-8">
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-300 mb-2 text-left">
-              PLAYER NAME
+              플레이어 이름
             </label>
             <input
               type="text"
@@ -50,7 +50,7 @@ export default function MainMenu() {
                 setError('');
               }}
               onKeyDown={(e) => e.key === 'Enter' && handlePlay()}
-              placeholder="Enter your name..."
+              placeholder="이름을 입력하세요..."
               className="w-full px-4 py-3 bg-black/50 border border-cyan-500/30 rounded-lg
                        text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400
                        focus:ring-2 focus:ring-cyan-400/20 transition-all"
@@ -60,24 +60,24 @@ export default function MainMenu() {
           </div>
 
           <button onClick={handlePlay} className="btn-primary w-full">
-            PLAY ONLINE
+            온라인 플레이
           </button>
 
           <div className="mt-6 text-sm text-gray-400">
-            <p>Controls:</p>
+            <p>조작법:</p>
             <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
-              <span>← → / A D</span><span>Move</span>
-              <span>↑ / X</span><span>Rotate CW</span>
-              <span>Z / Ctrl</span><span>Rotate CCW</span>
-              <span>↓ / S</span><span>Soft Drop</span>
-              <span>Space</span><span>Hard Drop</span>
-              <span>C / Shift</span><span>Hold</span>
+              <span>← → / A D</span><span>이동</span>
+              <span>↑ / X</span><span>시계방향 회전</span>
+              <span>Z / Ctrl</span><span>반시계방향 회전</span>
+              <span>↓ / S</span><span>소프트 드롭</span>
+              <span>Space</span><span>하드 드롭</span>
+              <span>C / Shift</span><span>홀드</span>
             </div>
           </div>
         </div>
 
         <p className="mt-8 text-gray-500 text-sm">
-          Battle against other players in real-time!
+          실시간으로 다른 플레이어와 대전하세요!
         </p>
       </div>
     </div>

@@ -30,7 +30,7 @@ export default function GameHUD() {
 
       {opponentStates.length > 0 && (
         <div className="absolute bottom-4 right-4 panel-glow p-4 max-h-64 overflow-y-auto">
-          <div className="text-sm text-gray-400 mb-2">OPPONENTS ({opponentStates.length})</div>
+          <div className="text-sm text-gray-400 mb-2">상대 ({opponentStates.length})</div>
           <div className="space-y-2">
             {opponentStates.slice(0, 4).map((opponent) => (
               <div
@@ -46,13 +46,13 @@ export default function GameHUD() {
                   <span className="font-bold text-white">{opponent.name}</span>
                 </div>
                 <div className="text-xs text-cyan-400 ml-4">
-                  {opponent.score.toLocaleString()} pts • Lv.{opponent.level}
+                  {opponent.score.toLocaleString()}점 • Lv.{opponent.level}
                 </div>
               </div>
             ))}
             {opponentStates.length > 4 && (
               <div className="text-xs text-gray-500">
-                +{opponentStates.length - 4} more...
+                +{opponentStates.length - 4}명 더...
               </div>
             )}
           </div>
@@ -63,15 +63,15 @@ export default function GameHUD() {
         <div className="absolute left-1/2 top-4 transform -translate-x-1/2">
           <div className="bg-red-600/80 px-4 py-2 rounded-lg">
             <span className="text-white font-bold">
-              {myState.pendingGarbage} LINES INCOMING
+              {myState.pendingGarbage} 라인 수신 중
             </span>
           </div>
         </div>
       )}
 
       <div className="absolute bottom-4 left-4 text-xs text-gray-500">
-        <div>← → Move | ↑ Rotate | Space Hard Drop</div>
-        <div>Z/Ctrl CCW | C/Shift Hold | ↓ Soft Drop</div>
+        <div>← → 이동 | ↑ 회전 | Space 하드 드롭</div>
+        <div>Z/Ctrl 반시계 | C/Shift 홀드 | ↓ 소프트 드롭</div>
       </div>
     </>
   );
