@@ -30,7 +30,7 @@ export default function MainMenu() {
       </div>
 
       <div className="relative z-10 text-center">
-        <h1 className="text-7xl font-black mb-2 tetris-gradient bg-clip-text text-transparent">
+        <h1 className="text-7xl font-black mb-2 tetris-gradient">
           3D Tetris
         </h1>
         <h2 className="text-3xl font-bold text-cyan-400 glow-text mb-12 tracking-widest">
