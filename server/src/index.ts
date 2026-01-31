@@ -335,8 +335,7 @@ io.on('connection', (socket) => {
 setInterval(tryMatchmaking, 5000);
 
 const PORT = process.env.PORT || 3001;
-const HOST = process.env.HOST || '0.0.0.0';
 
-httpServer.listen(Number(PORT), HOST, () => {
-  console.log(`Server running on ${HOST}:${PORT}`);
+httpServer.listen(Number(PORT), () => {
+  console.log(`Server running on port ${PORT}`);
 });
