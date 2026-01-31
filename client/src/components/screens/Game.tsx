@@ -58,7 +58,7 @@ export default function Game() {
       <div className="w-full h-full flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-xl text-cyan-400">게임 로딩 중...</p>
+          <p className="text-xl text-cyan-400">Loading game...</p>
         </div>
       </div>
     );
@@ -70,12 +70,12 @@ export default function Game() {
       <div className="w-full h-full flex items-center justify-center bg-black/80">
         <div className="text-center">
           <p className="text-2xl text-gray-400 mb-4">
-            {opponents.length === 1 ? `VS ${opponentNames}` : `${opponents.length + 1}인 대전`}
+            {opponents.length === 1 ? `VS ${opponentNames}` : `${opponents.length + 1} Players Battle`}
           </p>
           <div className="text-9xl font-black text-cyan-400 glow-text animate-pulse">
             {gameState.countdown}
           </div>
-          <p className="text-xl text-gray-400 mt-4">준비!</p>
+          <p className="text-xl text-gray-400 mt-4">Get Ready!</p>
         </div>
       </div>
     );
@@ -97,7 +97,7 @@ export default function Game() {
         type="button"
         onClick={toggleSound}
         className="absolute top-4 right-4 p-2 rounded-lg bg-black/50 hover:bg-black/70 transition-colors z-50"
-        title={soundEnabled ? '음소거' : '음소거 해제'}
+        title={soundEnabled ? 'Mute' : 'Unmute'}
       >
         {soundEnabled ? (
           <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,7 +115,7 @@ export default function Game() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
           <div className="bg-red-600/90 px-6 py-3 rounded-lg animate-pulse">
             <p className="text-xl font-bold text-white">
-              +{pendingGarbage.lines} 쓰레기 라인 수신!
+              +{pendingGarbage.lines} GARBAGE INCOMING!
             </p>
           </div>
         </div>

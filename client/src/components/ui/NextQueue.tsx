@@ -7,7 +7,7 @@ interface NextQueueProps {
 export default function NextQueue({ pieces }: NextQueueProps) {
   return (
     <div className="panel-glow p-4">
-      <div className="text-sm text-gray-400 mb-3 font-bold tracking-wider">다음</div>
+      <div className="text-sm text-gray-400 mb-3 font-bold tracking-wider">NEXT</div>
       <div className="flex flex-col gap-3">
         {pieces.slice(0, 5).map((type, index) => (
           <div

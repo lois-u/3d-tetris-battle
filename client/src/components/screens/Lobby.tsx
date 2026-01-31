@@ -48,9 +48,9 @@ export default function Lobby() {
       <div className="relative z-10 w-full max-w-4xl">
         <div className="flex items-center justify-between mb-8">
           <button type="button" onClick={handleBack} className="btn-secondary">
-            ← 뒤로
+            ← Back
           </button>
-          <h1 className="text-4xl font-bold text-cyan-400 glow-text">로비</h1>
+          <h1 className="text-4xl font-bold text-cyan-400 glow-text">LOBBY</h1>
           <div className="w-24" />
         </div>
 
@@ -58,18 +58,18 @@ export default function Lobby() {
           <div className="panel-glow p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-gray-400 text-sm">플레이어</p>
+                <p className="text-gray-400 text-sm">Playing as</p>
                 <p className="text-xl font-bold text-white">{playerName}</p>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-green-400">온라인</span>
+                <span className="text-green-400">Online</span>
               </div>
             </div>
 
             <div className="mb-4">
               <label htmlFor="playerCount" className="block text-gray-400 text-sm mb-2">
-                최대 인원
+                Max Players
               </label>
               <div className="flex gap-2">
                 {[2, 4, 6, 8].map((num) => (
@@ -93,23 +93,23 @@ export default function Lobby() {
               <div className="text-center py-6">
                 <div className="inline-flex items-center gap-3 mb-4">
                   <div className="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-xl text-cyan-400">검색 중...</span>
+                  <span className="text-xl text-cyan-400">Searching...</span>
                 </div>
                 <button
                   type="button"
                   onClick={handleCancelMatch}
                   className="btn-secondary block mx-auto"
                 >
-                  취소
+                  Cancel
                 </button>
               </div>
             ) : (
               <div className="space-y-3">
                 <button type="button" onClick={handleQuickMatch} className="btn-primary w-full">
-                  빠른 대전
+                  QUICK MATCH
                 </button>
                 <button type="button" onClick={handleCreateRoom} className="btn-secondary w-full">
-                  방 만들기
+                  CREATE ROOM
                 </button>
               </div>
             )}
@@ -117,11 +117,11 @@ export default function Lobby() {
 
           <div className="panel p-6">
             <h2 className="text-xl font-bold text-purple-400 mb-4">
-              대기 중인 방 ({availableRooms.length})
+              Available Rooms ({availableRooms.length})
             </h2>
 
             {availableRooms.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">대기 중인 방이 없습니다</p>
+              <p className="text-gray-500 text-center py-8">No rooms available</p>
             ) : (
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {availableRooms.map((room) => (
@@ -131,10 +131,10 @@ export default function Lobby() {
                   >
                     <div>
                       <p className="text-white font-medium">
-                        {room.players[0]?.name || '알 수 없음'}의 방
+                        {room.players[0]?.name || 'Unknown'}'s Room
                       </p>
                       <p className="text-sm text-gray-400">
-                        {room.players.length}/{room.maxPlayers}명
+                        {room.players.length}/{room.maxPlayers} players
                       </p>
                     </div>
                     <button
@@ -147,7 +147,7 @@ export default function Lobby() {
                           : 'bg-purple-500 hover:bg-purple-600 text-white'
                       }`}
                     >
-                      참가
+                      JOIN
                     </button>
                   </div>
                 ))}
@@ -158,11 +158,11 @@ export default function Lobby() {
 
         <div className="panel p-6 mt-6">
           <h2 className="text-xl font-bold text-purple-400 mb-4">
-            온라인 플레이어 ({lobbyPlayers.length})
+            Online Players ({lobbyPlayers.length})
           </h2>
 
           {lobbyPlayers.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">온라인 플레이어가 없습니다</p>
+            <p className="text-gray-500 text-center py-4">No players online</p>
           ) : (
             <div className="flex flex-wrap gap-2">
               {lobbyPlayers.map((player) => (

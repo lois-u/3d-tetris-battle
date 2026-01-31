@@ -8,7 +8,7 @@ interface HoldPieceProps {
 export default function HoldPiece({ piece, canHold }: HoldPieceProps) {
   return (
     <div className={`panel-glow p-4 ${!canHold ? 'opacity-50' : ''}`}>
-      <div className="text-sm text-gray-400 mb-2 font-bold tracking-wider">홀드</div>
+      <div className="text-sm text-gray-400 mb-2 font-bold tracking-wider">HOLD</div>
       <div className="w-20 h-16 flex items-center justify-center">
         {piece ? (
           <MiniTetromino type={piece} />
