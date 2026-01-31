@@ -1,11 +1,13 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useGameStore } from '../store/gameStore';
 import { GameAction, GAME_CONFIG } from '@3d-tetris/shared';
+import { useLocalPrediction } from './useLocalPrediction';
 
 type SoundType = 'move' | 'rotate' | 'drop' | 'hardDrop' | 'hold' | 'lineClear' | 'tetris' | 'tSpin' | 'combo' | 'levelUp' | 'gameOver' | 'countdown' | 'start';
 
 export function useGameInput(playSound?: (sound: SoundType) => void) {
   const { socket, gameState, playerId } = useGameStore();
+  const { applyLocalAction } = useLocalPrediction();
   const keysPressed = useRef<Set<string>>(new Set());
   const dasTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const arrIntervals = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
@@ -17,12 +19,16 @@ export function useGameInput(playSound?: (sound: SoundType) => void) {
       const myState = gameState.players.find((p) => p.id === playerId);
       if (!myState?.isAlive) return;
 
+      // Apply action locally first for instant feedback
+      applyLocalAction(action);
+      
+      // Then send to server for authoritative update
       socket.emit('gameAction', action);
       if (sound && playSound) {
         playSound(sound);
       }
     },
-    [socket, gameState, playerId, playSound]
+    [socket, gameState, playerId, playSound, applyLocalAction]
   );
 
   const startDAS = useCallback(
