@@ -31,10 +31,10 @@ export default function MainMenu() {
 
       <div className="relative z-10 text-center">
         <h1 className="text-7xl font-black mb-2 tetris-gradient bg-clip-text text-transparent">
-          3D 테트리스
+          3D Tetris
         </h1>
         <h2 className="text-3xl font-bold text-cyan-400 glow-text mb-12 tracking-widest">
-          배틀
+          Battle
         </h2>
 
         <div className="panel-glow max-w-md mx-auto p-8">
