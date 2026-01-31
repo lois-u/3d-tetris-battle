@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+.vercel
+*.log
+.env*
+client/dist
+client/node_modules
+server/node_modules
+shared/node_modules
+server/dist
+shared/dist

@@ -1,0 +1,22 @@
+app = '3d-tetris-server'
+primary_region = 'nrt'
+
+[build]
+  [build.args]
+    NODE_VERSION = "20"
+
+[env]
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+[[vm]]
+  memory = '256mb'
+  cpu_kind = 'shared'
+  cpus = 1
