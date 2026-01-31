@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: 3d-tetris-server
+    runtime: node
+    buildCommand: npm install -g pnpm && pnpm install && pnpm run build:server
+    startCommand: node server/dist/index.js
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: HOST
+        value: 0.0.0.0
+      - key: NODE_ENV
+        value: production
