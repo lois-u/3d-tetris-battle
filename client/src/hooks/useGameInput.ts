@@ -1,53 +1,41 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { GameAction, GAME_CONFIG } from '@3d-tetris/shared';
+import { GameAction } from '@3d-tetris/shared';
 import { useLocalPrediction } from './useLocalPrediction';
 
 type SoundType = 'move' | 'rotate' | 'drop' | 'hardDrop' | 'hold' | 'lineClear' | 'tetris' | 'tSpin' | 'combo' | 'levelUp' | 'gameOver' | 'countdown' | 'start';
 
 const FAST_DAS = 80;
-const FAST_ARR = 0;
-const DOWN_ARR = 30;
+const FAST_ARR = 5;
+const DOWN_ARR = 40;
 
 export function useGameInput(playSound?: (sound: SoundType) => void) {
-  const { socket, gameState, playerId } = useGameStore();
   const { applyLocalAction } = useLocalPrediction();
-  
-  const socketRef = useRef(socket);
-  const gameStateRef = useRef(gameState);
-  const playerIdRef = useRef(playerId);
-  const applyLocalActionRef = useRef(applyLocalAction);
-  const playSoundRef = useRef(playSound);
   
   const keysPressed = useRef<Set<string>>(new Set());
   const dasTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const arrIntervals = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
+  const playSoundRef = useRef(playSound);
 
   useEffect(() => {
-    socketRef.current = socket;
-    gameStateRef.current = gameState;
-    playerIdRef.current = playerId;
-    applyLocalActionRef.current = applyLocalAction;
     playSoundRef.current = playSound;
-  }, [socket, gameState, playerId, applyLocalAction, playSound]);
+  }, [playSound]);
 
   const sendAction = useCallback((action: GameAction, sound?: SoundType) => {
-    const gs = gameStateRef.current;
-    const sock = socketRef.current;
-    const pid = playerIdRef.current;
+    const { socket, gameState, playerId } = useGameStore.getState();
     
-    if (!sock || !gs || gs.status !== 'playing') return;
+    if (!socket || !gameState || gameState.status !== 'playing') return;
 
-    const myState = gs.players.find((p) => p.id === pid);
+    const myState = gameState.players.find((p) => p.id === playerId);
     if (!myState?.isAlive) return;
 
-    applyLocalActionRef.current(action);
-    sock.emit('gameAction', action);
+    applyLocalAction(action);
+    socket.emit('gameAction', action);
     
     if (sound && playSoundRef.current) {
       playSoundRef.current(sound);
     }
-  }, []);
+  }, [applyLocalAction]);
 
   const stopDAS = useCallback((key: string) => {
     const dasTimer = dasTimers.current.get(key);
@@ -67,25 +55,15 @@ export function useGameInput(playSound?: (sound: SoundType) => void) {
     sendAction(action, sound);
 
     const dasTimer = setTimeout(() => {
-      if (FAST_ARR === 0) {
-        const instantMove = () => {
-          if (keysPressed.current.has(key)) {
-            sendAction(action);
-            requestAnimationFrame(instantMove);
-          }
-        };
-        requestAnimationFrame(instantMove);
-      } else {
-        const arrInterval = setInterval(() => {
-          if (keysPressed.current.has(key)) {
-            sendAction(action);
-          } else {
-            clearInterval(arrInterval);
-            arrIntervals.current.delete(key);
-          }
-        }, FAST_ARR);
-        arrIntervals.current.set(key, arrInterval);
-      }
+      const arrInterval = setInterval(() => {
+        if (keysPressed.current.has(key)) {
+          sendAction(action);
+        } else {
+          clearInterval(arrInterval);
+          arrIntervals.current.delete(key);
+        }
+      }, FAST_ARR);
+      arrIntervals.current.set(key, arrInterval);
     }, FAST_DAS);
 
     dasTimers.current.set(key, dasTimer);

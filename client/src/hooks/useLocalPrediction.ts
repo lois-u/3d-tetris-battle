@@ -1,106 +1,74 @@
-import { useRef, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useGameStore } from '../store/gameStore';
 import {
-  TetrisEngine,
   GameAction,
   PlayerState,
   Tetromino,
   Board,
-  TetrominoType,
 } from '@3d-tetris/shared';
 
-interface LocalState {
-  board: Board;
-  currentPiece: Tetromino | null;
-  holdPiece: TetrominoType | null;
-  canHold: boolean;
-}
-
 export function useLocalPrediction() {
-  const { gameState, playerId, setGameState, setLastPredictionTime } = useGameStore();
-  const localEngineRef = useRef<TetrisEngine | null>(null);
-  const lastServerStateRef = useRef<PlayerState | null>(null);
-
-  const initLocalEngine = useCallback(() => {
-    if (!gameState || !playerId) return;
+  const applyLocalAction = useCallback((action: GameAction): boolean => {
+    const { gameState, playerId, setGameState, setLastPredictionTime } = useGameStore.getState();
     
+    if (!gameState || !playerId) return false;
+
     const myState = gameState.players.find((p) => p.id === playerId);
-    if (!myState) return;
+    if (!myState?.isAlive || !myState.currentPiece) return false;
 
-    localEngineRef.current = new TetrisEngine();
-    lastServerStateRef.current = myState;
-  }, [gameState, playerId]);
+    let newPiece: Tetromino | null = { ...myState.currentPiece };
+    const newBoard = myState.board;
+    let success = false;
 
-  const applyLocalAction = useCallback(
-    (action: GameAction): boolean => {
-      if (!gameState || !playerId) return false;
+    switch (action.type) {
+      case 'moveLeft':
+        if (canMove(newBoard, newPiece, -1, 0)) {
+          newPiece = { ...newPiece, position: { ...newPiece.position, x: newPiece.position.x - 1 } };
+          success = true;
+        }
+        break;
+      case 'moveRight':
+        if (canMove(newBoard, newPiece, 1, 0)) {
+          newPiece = { ...newPiece, position: { ...newPiece.position, x: newPiece.position.x + 1 } };
+          success = true;
+        }
+        break;
+      case 'softDrop':
+        if (canMove(newBoard, newPiece, 0, -1)) {
+          newPiece = { ...newPiece, position: { ...newPiece.position, y: newPiece.position.y - 1 } };
+          success = true;
+        }
+        break;
+      case 'rotateCW':
+      case 'rotateCCW':
+      case 'rotate180':
+      case 'hardDrop':
+      case 'hold':
+        return true;
+    }
 
-      const myState = gameState.players.find((p) => p.id === playerId);
-      if (!myState?.isAlive || !myState.currentPiece) return false;
+    if (success && newPiece) {
+      const updatedPlayers = gameState.players.map((p) => {
+        if (p.id === playerId) {
+          return {
+            ...p,
+            currentPiece: newPiece,
+          };
+        }
+        return p;
+      });
 
-      let newPiece: Tetromino | null = { ...myState.currentPiece };
-      let newBoard = myState.board;
-      let newHoldPiece = myState.holdPiece;
-      let newCanHold = myState.canHold;
-      let success = false;
+      setLastPredictionTime(Date.now());
+      setGameState({
+        ...gameState,
+        players: updatedPlayers as PlayerState[],
+      });
+    }
 
-      switch (action.type) {
-        case 'moveLeft':
-          if (canMove(newBoard, newPiece, -1, 0)) {
-            newPiece = { ...newPiece, position: { ...newPiece.position, x: newPiece.position.x - 1 } };
-            success = true;
-          }
-          break;
-        case 'moveRight':
-          if (canMove(newBoard, newPiece, 1, 0)) {
-            newPiece = { ...newPiece, position: { ...newPiece.position, x: newPiece.position.x + 1 } };
-            success = true;
-          }
-          break;
-        case 'softDrop':
-          if (canMove(newBoard, newPiece, 0, -1)) {
-            newPiece = { ...newPiece, position: { ...newPiece.position, y: newPiece.position.y - 1 } };
-            success = true;
-          }
-          break;
-        case 'rotateCW':
-        case 'rotateCCW':
-        case 'rotate180':
-        case 'hardDrop':
-        case 'hold':
-          return true;
-      }
+    return success;
+  }, []);
 
-      if (success && newPiece) {
-        const updatedPlayers = gameState.players.map((p) => {
-          if (p.id === playerId) {
-            return {
-              ...p,
-              currentPiece: newPiece,
-              board: newBoard,
-              holdPiece: newHoldPiece,
-              canHold: newCanHold,
-            };
-          }
-          return p;
-        });
-
-        setLastPredictionTime(Date.now());
-        setGameState({
-          ...gameState,
-          players: updatedPlayers as PlayerState[],
-        });
-      }
-
-      return success;
-    },
-    [gameState, playerId, setGameState, setLastPredictionTime]
-  );
-
-  return {
-    initLocalEngine,
-    applyLocalAction,
-  };
+  return { applyLocalAction };
 }
 
 function canMove(board: Board, piece: Tetromino, dx: number, dy: number): boolean {
