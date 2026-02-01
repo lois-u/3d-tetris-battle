@@ -26,6 +26,7 @@ export function useSocket() {
     setCurrentRoom,
     setOpponents,
     setGameState,
+    setGameStateFromServer,
     setWinner,
     setScreen,
     setIsSearching,
@@ -77,7 +78,7 @@ export function useSocket() {
     });
 
     socket.on('gameUpdate', (state) => {
-      setGameState(state);
+      setGameStateFromServer(state);
     });
 
     socket.on('gameOver', ({ winner }) => {

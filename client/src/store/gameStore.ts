@@ -44,6 +44,10 @@ interface GameStore {
 
   gameState: GameState | null;
   setGameState: (state: GameState | null) => void;
+  setGameStateFromServer: (state: GameState) => void;
+
+  lastPredictionTime: number;
+  setLastPredictionTime: (time: number) => void;
 
   winner: string | null;
   setWinner: (winner: string | null) => void;
@@ -90,6 +94,32 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   gameState: null,
   setGameState: (gameState) => set({ gameState }),
+  setGameStateFromServer: (serverState) => {
+    const { gameState, playerId, lastPredictionTime } = get();
+    const now = Date.now();
+    const predictionWindow = 150;
+    
+    if (gameState && playerId && (now - lastPredictionTime) < predictionWindow) {
+      const myCurrentState = gameState.players.find((p) => p.id === playerId);
+      if (myCurrentState?.currentPiece) {
+        const mergedPlayers = serverState.players.map((p) => {
+          if (p.id === playerId && myCurrentState.currentPiece) {
+            return {
+              ...p,
+              currentPiece: myCurrentState.currentPiece,
+            };
+          }
+          return p;
+        });
+        set({ gameState: { ...serverState, players: mergedPlayers } });
+        return;
+      }
+    }
+    set({ gameState: serverState });
+  },
+
+  lastPredictionTime: 0,
+  setLastPredictionTime: (lastPredictionTime) => set({ lastPredictionTime }),
 
   winner: null,
   setWinner: (winner) => set({ winner }),

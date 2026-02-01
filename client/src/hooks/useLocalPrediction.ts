@@ -17,7 +17,7 @@ interface LocalState {
 }
 
 export function useLocalPrediction() {
-  const { gameState, playerId, setGameState } = useGameStore();
+  const { gameState, playerId, setGameState, setLastPredictionTime } = useGameStore();
   const localEngineRef = useRef<TetrisEngine | null>(null);
   const lastServerStateRef = useRef<PlayerState | null>(null);
 
@@ -85,6 +85,7 @@ export function useLocalPrediction() {
           return p;
         });
 
+        setLastPredictionTime(Date.now());
         setGameState({
           ...gameState,
           players: updatedPlayers as PlayerState[],
@@ -93,7 +94,7 @@ export function useLocalPrediction() {
 
       return success;
     },
-    [gameState, playerId, setGameState]
+    [gameState, playerId, setGameState, setLastPredictionTime]
   );
 
   return {
