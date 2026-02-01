@@ -8,18 +8,24 @@ import GameHUD from '../ui/GameHUD';
 
 export default function Game() {
   const { gameState, opponents, pendingGarbage, getMyState } = useGameStore();
-  const { playSound, checkGameStateChanges, resetTracking, setEnabled } = useSound();
+  const { playSound, checkGameStateChanges, resetTracking, setEnabled, playBGM, stopBGM, setBGMEnabled } = useSound();
   const [soundEnabled, setSoundEnabled] = useState(true);
   const lastCountdown = useRef<number | null>(null);
   const gameStarted = useRef(false);
+  const bgmStarted = useRef(false);
 
   useGameInput(playSound);
 
   useEffect(() => {
     resetTracking();
     gameStarted.current = false;
+    bgmStarted.current = false;
     lastCountdown.current = null;
-  }, [resetTracking]);
+    
+    return () => {
+      stopBGM();
+    };
+  }, [resetTracking, stopBGM]);
 
   useEffect(() => {
     if (!gameState) return;
@@ -36,6 +42,16 @@ export default function Game() {
       gameStarted.current = true;
     }
 
+    if (gameState.status === 'playing' && !bgmStarted.current) {
+      playBGM();
+      bgmStarted.current = true;
+    }
+
+    if (gameState.status === 'finished' && bgmStarted.current) {
+      stopBGM();
+      bgmStarted.current = false;
+    }
+
     const myState = getMyState();
     if (myState && gameState.status === 'playing') {
       checkGameStateChanges(
@@ -45,12 +61,13 @@ export default function Game() {
         myState.backToBack
       );
     }
-  }, [gameState, playSound, checkGameStateChanges, getMyState]);
+  }, [gameState, playSound, checkGameStateChanges, getMyState, playBGM, stopBGM]);
 
   const toggleSound = () => {
     const newState = !soundEnabled;
     setSoundEnabled(newState);
     setEnabled(newState);
+    setBGMEnabled(newState);
   };
 
   if (!gameState) {
