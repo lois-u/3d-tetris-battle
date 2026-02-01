@@ -8,8 +8,6 @@ import {
   ServerToClientEvents,
   ClientToServerEvents,
   GameAction,
-  Tetromino,
-  Board,
 } from '@3d-tetris/shared';
 
 interface PendingAction {
@@ -104,69 +102,25 @@ export const useGameStore = create<GameStore>((set, get) => ({
   gameState: null,
   setGameState: (gameState) => set({ gameState }),
   setGameStateFromServer: (serverState) => {
-    const { pendingActions, playerId } = get();
-    const now = Date.now();
+    const { gameState, playerId } = get();
     
-    // 500ms 이상 지난 액션 제거
-    const validActions = pendingActions.filter(a => now - a.timestamp < 500);
-    
-    // 내 플레이어 상태 찾기
     const serverMyState = serverState.players.find(p => p.id === playerId);
+    const localMyState = gameState?.players.find(p => p.id === playerId);
     
-    // pending actions가 없거나 피스가 없으면 서버 상태 그대로 사용
-    if (!serverMyState?.currentPiece || validActions.length === 0) {
+    // 같은 피스 타입이면 로컬 위치 100% 유지 (스냅백 완전 방지)
+    if (localMyState?.currentPiece && serverMyState?.currentPiece &&
+        localMyState.currentPiece.type === serverMyState.currentPiece.type) {
+      const mergedPlayers = serverState.players.map(p => {
+        if (p.id === playerId && localMyState.currentPiece) {
+          return { ...p, currentPiece: localMyState.currentPiece };
+        }
+        return p;
+      });
+      set({ gameState: { ...serverState, players: mergedPlayers as PlayerState[] } });
+    } else {
+      // 피스 타입이 다르면 (새 피스 스폰) 서버 상태 완전 수용
       set({ gameState: serverState, pendingActions: [] });
-      return;
     }
-    
-    // 서버 피스에서 시작해서 pending actions 재적용
-    let piece: Tetromino = { ...serverMyState.currentPiece };
-    const board = serverMyState.board;
-    const actionsToKeep: PendingAction[] = [];
-    
-    for (const pendingAction of validActions) {
-      const { action } = pendingAction;
-      let applied = false;
-      
-      switch (action.type) {
-        case 'moveLeft':
-          if (canMoveInStore(board, piece, -1, 0)) {
-            piece = { ...piece, position: { ...piece.position, x: piece.position.x - 1 } };
-            applied = true;
-          }
-          break;
-        case 'moveRight':
-          if (canMoveInStore(board, piece, 1, 0)) {
-            piece = { ...piece, position: { ...piece.position, x: piece.position.x + 1 } };
-            applied = true;
-          }
-          break;
-        case 'moveDown':
-          if (canMoveInStore(board, piece, 0, -1)) {
-            piece = { ...piece, position: { ...piece.position, y: piece.position.y - 1 } };
-            applied = true;
-          }
-          break;
-      }
-      
-      // 적용된 액션만 유지
-      if (applied) {
-        actionsToKeep.push(pendingAction);
-      }
-    }
-    
-    // 재적용된 피스 위치로 상태 업데이트
-    const mergedPlayers = serverState.players.map(p => {
-      if (p.id === playerId) {
-        return { ...p, currentPiece: piece };
-      }
-      return p;
-    });
-    
-    set({ 
-      gameState: { ...serverState, players: mergedPlayers as PlayerState[] },
-      pendingActions: actionsToKeep
-    });
   },
 
   pendingActions: [],
@@ -210,18 +164,3 @@ export const useGameStore = create<GameStore>((set, get) => ({
       pendingActions: [],
     }),
 }));
-
-function canMoveInStore(board: Board, piece: Tetromino, dx: number, dy: number): boolean {
-  if (!piece) return false;
-  
-  for (const block of piece.shape) {
-    const newX = piece.position.x + block.x + dx;
-    const newY = piece.position.y + block.y + dy;
-
-    if (newX < 0 || newX >= 10) return false;
-    if (newY < 0) return false;
-    if (newY < board.length && board[newY]?.[newX] !== null) return false;
-  }
-  
-  return true;
-}
