@@ -103,6 +103,17 @@ function lockPieceToBoard(board: Board, piece: Tetromino): Board {
   return newBoard;
 }
 
+function createSpawnedPiece(type: TetrominoType): Tetromino {
+  const spawnX = Math.floor((BOARD_WIDTH - 4) / 2);
+  const spawnY = BOARD_HEIGHT;
+  return {
+    type,
+    position: { x: spawnX, y: spawnY },
+    rotation: 0 as RotationState,
+    shape: TETROMINO_SHAPES[type][0],
+  };
+}
+
 export function useLocalPrediction() {
   const applyLocalAction = useCallback((action: GameAction): boolean => {
     const { gameState, playerId, displayPiece, setDisplayPiece, setPendingLock } = useGameStore.getState();
@@ -173,6 +184,15 @@ export function useLocalPrediction() {
         const ghostY = getGhostY(board, newPiece);
         const droppedPiece = { ...newPiece, position: { ...newPiece.position, y: ghostY } };
         const lockedBoard = lockPieceToBoard(board, droppedPiece);
+        
+        const nextPieceType = myState.nextPieces[0];
+        if (nextPieceType) {
+          const nextPiece = createSpawnedPiece(nextPieceType);
+          setPendingLock({ board: lockedBoard, timestamp: Date.now() });
+          setDisplayPiece(nextPiece);
+          return true;
+        }
+        
         setPendingLock({ board: lockedBoard, timestamp: Date.now() });
         newPiece = droppedPiece;
         success = true;
