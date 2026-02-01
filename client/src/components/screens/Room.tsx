@@ -148,7 +148,7 @@ export default function Room() {
           <div className="w-72 panel-glow p-4 flex flex-col">
             <h3 className="text-lg font-bold text-cyan-400 mb-3">Chat</h3>
             
-            <div className="flex-1 overflow-y-auto mb-3 space-y-2 min-h-[200px] max-h-[300px]">
+            <div className="flex-1 overflow-y-auto mb-3 space-y-2 min-h-[200px] max-h-[300px] scrollbar-thin">
               {chatMessages.length === 0 ? (
                 <p className="text-gray-500 text-sm text-center py-4">No messages yet</p>
               ) : (
