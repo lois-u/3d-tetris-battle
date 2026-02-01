@@ -182,6 +182,14 @@ export interface RoomInfo {
   status: 'waiting' | 'countdown' | 'playing' | 'finished';
 }
 
+export interface ChatMessage {
+  id: string;
+  playerId: string;
+  playerName: string;
+  message: string;
+  timestamp: number;
+}
+
 export interface ServerToClientEvents {
   connected: (data: { playerId: string }) => void;
   error: (message: string) => void;
@@ -191,6 +199,7 @@ export interface ServerToClientEvents {
   roomJoined: (data: { room: RoomInfo }) => void;
   roomUpdate: (data: { room: RoomInfo }) => void;
   matchFound: (data: { roomId: string; opponents: LobbyPlayer[] }) => void;
+  chatMessage: (data: { message: ChatMessage }) => void;
 
   gameState: (state: GameState) => void;
   gameStart: (state: GameState) => void;
@@ -210,6 +219,7 @@ export interface ClientToServerEvents {
   findMatch: (data?: { maxPlayers?: number }) => void;
   cancelMatch: () => void;
   startGame: () => void;
+  sendChat: (data: { message: string }) => void;
 
   ready: () => void;
   gameAction: (action: GameAction) => void;

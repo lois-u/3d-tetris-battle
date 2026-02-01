@@ -237,6 +237,30 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('sendChat', ({ message }) => {
+    const roomId = playerToRoom.get(socket.id);
+    if (!roomId) return;
+
+    const room = gameRooms.get(roomId);
+    if (!room || room.getStatus() !== 'waiting') return;
+
+    const player = lobbyPlayers.get(socket.id);
+    if (!player) return;
+
+    const trimmedMessage = message.trim().slice(0, 200);
+    if (!trimmedMessage) return;
+
+    const chatMessage = {
+      id: `${socket.id}-${Date.now()}`,
+      playerId: socket.id,
+      playerName: player.name,
+      message: trimmedMessage,
+      timestamp: Date.now(),
+    };
+
+    io.to(roomId).emit('chatMessage', { message: chatMessage });
+  });
+
   socket.on('findMatch', (data) => {
     const player = lobbyPlayers.get(socket.id);
     if (player && player.status === 'idle') {

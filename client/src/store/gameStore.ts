@@ -8,6 +8,7 @@ import {
   ServerToClientEvents,
   ClientToServerEvents,
   Tetromino,
+  ChatMessage,
 } from '@3d-tetris/shared';
 
 interface SyncState {
@@ -63,6 +64,10 @@ interface GameStore {
   currentRoom: RoomInfo | null;
   setCurrentRoom: (room: RoomInfo | null) => void;
 
+  chatMessages: ChatMessage[];
+  addChatMessage: (message: ChatMessage) => void;
+  clearChatMessages: () => void;
+
   opponents: LobbyPlayer[];
   setOpponents: (opponents: LobbyPlayer[]) => void;
 
@@ -116,6 +121,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   currentRoom: null,
   setCurrentRoom: (currentRoom) => set({ currentRoom }),
+
+  chatMessages: [],
+  addChatMessage: (message) => set((state) => ({ 
+    chatMessages: [...state.chatMessages.slice(-49), message] 
+  })),
+  clearChatMessages: () => set({ chatMessages: [] }),
 
   opponents: [],
   setOpponents: (opponents) => set({ opponents }),
@@ -255,5 +266,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       displayPiece: null,
       syncState: { lastPieceType: null, lastBoardHash: '' },
       pendingLock: null,
+      chatMessages: [],
     }),
 }));

@@ -31,6 +31,8 @@ export function useSocket() {
     setScreen,
     setIsSearching,
     setPendingGarbage,
+    addChatMessage,
+    clearChatMessages,
   } = useGameStore();
 
   useEffect(() => {
@@ -53,12 +55,14 @@ export function useSocket() {
     socket.on('roomCreated', ({ room }) => {
       setRoomId(room.id);
       setCurrentRoom(room);
+      clearChatMessages();
       setScreen('room');
     });
 
     socket.on('roomJoined', ({ room }) => {
       setRoomId(room.id);
       setCurrentRoom(room);
+      clearChatMessages();
       setScreen('room');
     });
 
@@ -89,6 +93,10 @@ export function useSocket() {
     socket.on('garbageIncoming', ({ lines, fromPlayer }) => {
       setPendingGarbage({ lines, from: fromPlayer });
       setTimeout(() => setPendingGarbage(null), 2000);
+    });
+
+    socket.on('chatMessage', ({ message }) => {
+      addChatMessage(message);
     });
 
     socket.on('error', (message) => {
