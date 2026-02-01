@@ -88,14 +88,14 @@ function getGhostY(board: Board, piece: Tetromino): number {
 
 export function useLocalPrediction() {
   const applyLocalAction = useCallback((action: GameAction): boolean => {
-    const { gameState, playerId, setGameState, addPendingAction } = useGameStore.getState();
+    const { gameState, playerId, displayPiece, setDisplayPiece } = useGameStore.getState();
     
-    if (!gameState || !playerId) return false;
+    if (!gameState || !playerId || !displayPiece) return false;
 
     const myState = gameState.players.find((p) => p.id === playerId);
-    if (!myState?.isAlive || !myState.currentPiece) return false;
+    if (!myState?.isAlive) return false;
 
-    let newPiece: Tetromino | null = { ...myState.currentPiece };
+    let newPiece: Tetromino | null = { ...displayPiece };
     const board = myState.board;
     let success = false;
 
@@ -160,28 +160,11 @@ export function useLocalPrediction() {
       }
 
       case 'hold':
-        // Don't predict hold locally - let server handle piece swap
-        // Just return true to allow the action to be sent to server
-        // The piece type mismatch detection in reconciliation will handle cleanup
         return true;
     }
 
     if (success && newPiece) {
-      const updatedPlayers = gameState.players.map((p) => {
-        if (p.id === playerId) {
-          return {
-            ...p,
-            currentPiece: newPiece,
-          };
-        }
-        return p;
-      });
-
-      addPendingAction(action);
-      setGameState({
-        ...gameState,
-        players: updatedPlayers as PlayerState[],
-      });
+      setDisplayPiece(newPiece);
     }
 
     return success;
@@ -204,3 +187,5 @@ function canMove(board: Board, piece: Tetromino, dx: number, dy: number): boolea
   
   return true;
 }
+
+export { canPlacePiece, getGhostY };
