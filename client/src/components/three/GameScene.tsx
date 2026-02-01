@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Text } from '@react-three/drei';
 import { useGameStore } from '../../store/gameStore';
 import TetrisBoard from './TetrisBoard';
 import { TetrominoPreview } from './Tetromino';
@@ -62,6 +63,17 @@ function OpponentBoard({ opponent, position }: OpponentBoardProps) {
         <planeGeometry args={[12, 2]} />
         <meshBasicMaterial color={opponent.isAlive ? '#1a1a2e' : '#3a1a1a'} transparent opacity={0.8} />
       </mesh>
+      <Text
+        position={[5, -2, 0]}
+        fontSize={1.5}
+        color={opponent.isAlive ? '#ffffff' : '#ff4444'}
+        anchorX="center"
+        anchorY="middle"
+        outlineWidth={0.05}
+        outlineColor="#000000"
+      >
+        {opponent.name}
+      </Text>
     </group>
   );
 }

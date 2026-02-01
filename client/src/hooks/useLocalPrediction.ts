@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { useGameStore } from '../store/gameStore';
 import {
   GameAction,
-  PlayerState,
   Tetromino,
   Board,
   TetrominoType,
@@ -12,6 +11,7 @@ import {
   WALL_KICKS_JLSTZ,
   WALL_KICKS_I,
   BOARD_WIDTH,
+  BOARD_HEIGHT,
 } from '@3d-tetris/shared';
 
 function getWallKicks(
@@ -86,9 +86,26 @@ function getGhostY(board: Board, piece: Tetromino): number {
   return ghostY;
 }
 
+function lockPieceToBoard(board: Board, piece: Tetromino): Board {
+  const newBoard: Board = [];
+  for (let y = 0; y < BOARD_HEIGHT; y++) {
+    newBoard[y] = board[y] ? [...board[y]] : Array(BOARD_WIDTH).fill(null);
+  }
+  
+  for (const block of piece.shape) {
+    const x = piece.position.x + block.x;
+    const y = piece.position.y + block.y;
+    if (y >= 0 && y < BOARD_HEIGHT && x >= 0 && x < BOARD_WIDTH) {
+      newBoard[y][x] = piece.type;
+    }
+  }
+  
+  return newBoard;
+}
+
 export function useLocalPrediction() {
   const applyLocalAction = useCallback((action: GameAction): boolean => {
-    const { gameState, playerId, displayPiece, setDisplayPiece } = useGameStore.getState();
+    const { gameState, playerId, displayPiece, setDisplayPiece, setPendingLock } = useGameStore.getState();
     
     if (!gameState || !playerId || !displayPiece) return false;
 
@@ -154,7 +171,10 @@ export function useLocalPrediction() {
 
       case 'hardDrop': {
         const ghostY = getGhostY(board, newPiece);
-        newPiece = { ...newPiece, position: { ...newPiece.position, y: ghostY } };
+        const droppedPiece = { ...newPiece, position: { ...newPiece.position, y: ghostY } };
+        const lockedBoard = lockPieceToBoard(board, droppedPiece);
+        setPendingLock({ board: lockedBoard, timestamp: Date.now() });
+        newPiece = droppedPiece;
         success = true;
         break;
       }

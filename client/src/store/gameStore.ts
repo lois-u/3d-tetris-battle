@@ -15,6 +15,11 @@ interface SyncState {
   lastBoardHash: string;
 }
 
+interface PendingLock {
+  board: (string | null)[][];
+  timestamp: number;
+}
+
 function hashBoard(board: (string | null)[][]): string {
   let hash = 0;
   for (let y = 0; y < Math.min(20, board.length); y++) {
@@ -68,6 +73,9 @@ interface GameStore {
   displayPiece: Tetromino | null;
   setDisplayPiece: (piece: Tetromino | null) => void;
   syncState: SyncState;
+
+  pendingLock: PendingLock | null;
+  setPendingLock: (lock: PendingLock | null) => void;
 
   winner: string | null;
   setWinner: (winner: string | null) => void;
@@ -134,9 +142,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     });
   },
   syncState: { lastPieceType: null, lastBoardHash: '' },
+
+  pendingLock: null,
+  setPendingLock: (pendingLock) => set({ pendingLock }),
   
   setGameStateFromServer: (serverState) => {
-    const { playerId, displayPiece, syncState } = get();
+    const { playerId, displayPiece, syncState, pendingLock } = get();
 
     const serverMyState = serverState.players.find(p => p.id === playerId);
     
@@ -144,7 +155,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       set({ 
         gameState: serverState, 
         displayPiece: null,
-        syncState: { lastPieceType: null, lastBoardHash: '' }
+        syncState: { lastPieceType: null, lastBoardHash: '' },
+        pendingLock: null,
       });
       return;
     }
@@ -152,6 +164,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const serverPiece = serverMyState.currentPiece;
     const serverBoard = serverMyState.board;
     const currentBoardHash = hashBoard(serverBoard);
+
+    // Clear pending lock when server confirms (board changed or piece changed)
+    const boardChanged = currentBoardHash !== syncState.lastBoardHash;
+    const pieceChanged = serverPiece?.type !== syncState.lastPieceType;
+    const shouldClearPendingLock = boardChanged || pieceChanged;
 
     let shouldReset = false;
 
@@ -184,10 +201,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
       };
     }
 
+    // Use pending lock board for display if available and not yet confirmed
+    const displayBoard = (pendingLock && !shouldClearPendingLock) ? pendingLock.board : serverBoard;
+
     const mergedPlayers = serverState.players.map(p => {
       if (p.id === playerId) {
         return {
           ...p,
+          board: displayBoard,
           currentPiece: newDisplayPiece,
         };
       }
@@ -198,6 +219,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       gameState: { ...serverState, players: mergedPlayers as PlayerState[] },
       displayPiece: newDisplayPiece,
       syncState: newSyncState,
+      pendingLock: shouldClearPendingLock ? null : pendingLock,
     });
   },
 
@@ -232,5 +254,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       availableRooms: [],
       displayPiece: null,
       syncState: { lastPieceType: null, lastBoardHash: '' },
+      pendingLock: null,
     }),
 }));
