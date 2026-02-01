@@ -116,24 +116,35 @@ export const useGameStore = create<GameStore>((set, get) => ({
       set({ gameState: serverState, pendingActions: [] });
       return;
     }
-    const now = Date.now();
     
-    // Network RTT: pending actions within 200ms are considered unprocessed by server
+    const now = Date.now();
     const PENDING_ACTION_TTL = 200;
     const validPendingActions = pendingActions.filter(
       pa => (now - pa.timestamp) < PENDING_ACTION_TTL
     );
     
-    const hasPendingInput = validPendingActions.length > 0;
+    const hasPendingMovement = validPendingActions.some(
+      pa => pa.action.type === 'moveLeft' || pa.action.type === 'moveRight' || 
+            pa.action.type === 'moveDown' || pa.action.type === 'softDrop'
+    );
     
-    // X: trust local if pending inputs exist (server hasn't processed them yet)
-    // Y: always use lower value (gravity is server-authoritative)
+    const hasPendingRotation = validPendingActions.some(
+      pa => pa.action.type === 'rotateCW' || pa.action.type === 'rotateCCW' || 
+            pa.action.type === 'rotate180'
+    );
+    
+    const hasPendingHardDrop = validPendingActions.some(
+      pa => pa.action.type === 'hardDrop'
+    );
+    
     const mergedPiece = {
       ...serverPiece,
       position: {
-        x: hasPendingInput ? localPiece.position.x : serverPiece.position.x,
-        y: Math.min(localPiece.position.y, serverPiece.position.y)
-      }
+        x: hasPendingMovement || hasPendingRotation ? localPiece.position.x : serverPiece.position.x,
+        y: hasPendingHardDrop ? localPiece.position.y : Math.min(localPiece.position.y, serverPiece.position.y)
+      },
+      rotation: hasPendingRotation ? localPiece.rotation : serverPiece.rotation,
+      shape: hasPendingRotation ? localPiece.shape : serverPiece.shape,
     };
     
     const mergedPlayers = serverState.players.map(p => {
