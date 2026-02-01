@@ -102,40 +102,51 @@ export const useGameStore = create<GameStore>((set, get) => ({
   gameState: null,
   setGameState: (gameState) => set({ gameState }),
   setGameStateFromServer: (serverState) => {
-    const { gameState, playerId } = get();
+    const { gameState, playerId, pendingActions } = get();
     
     const serverMyState = serverState.players.find(p => p.id === playerId);
     const localMyState = gameState?.players.find(p => p.id === playerId);
     
-    if (localMyState?.currentPiece && serverMyState?.currentPiece &&
-        localMyState.currentPiece.type === serverMyState.currentPiece.type) {
-      const localPiece = localMyState.currentPiece;
-      const serverPiece = serverMyState.currentPiece;
-      const { pendingActions } = get();
-      const now = Date.now();
-      
-      // 최근 입력(50ms 이내)이 있으면 로컬 X 유지, 아니면 서버 X로 수렴
-      const latestAction = pendingActions[pendingActions.length - 1];
-      const hasRecentInput = latestAction && (now - latestAction.timestamp) < 50;
-      
-      const mergedPiece = {
-        ...serverPiece,
-        position: {
-          x: hasRecentInput ? localPiece.position.x : serverPiece.position.x,
-          y: Math.min(localPiece.position.y, serverPiece.position.y)
-        }
-      };
-      
-      const mergedPlayers = serverState.players.map(p => {
-        if (p.id === playerId) {
-          return { ...p, currentPiece: mergedPiece };
-        }
-        return p;
-      });
-      set({ gameState: { ...serverState, players: mergedPlayers as PlayerState[] } });
-    } else {
+    const localPiece = localMyState?.currentPiece;
+    const serverPiece = serverMyState?.currentPiece;
+    
+    const pieceMismatch = !localPiece || !serverPiece || localPiece.type !== serverPiece.type;
+    
+    if (pieceMismatch) {
       set({ gameState: serverState, pendingActions: [] });
+      return;
     }
+    const now = Date.now();
+    
+    // Network RTT: pending actions within 200ms are considered unprocessed by server
+    const PENDING_ACTION_TTL = 200;
+    const validPendingActions = pendingActions.filter(
+      pa => (now - pa.timestamp) < PENDING_ACTION_TTL
+    );
+    
+    const hasPendingInput = validPendingActions.length > 0;
+    
+    // X: trust local if pending inputs exist (server hasn't processed them yet)
+    // Y: always use lower value (gravity is server-authoritative)
+    const mergedPiece = {
+      ...serverPiece,
+      position: {
+        x: hasPendingInput ? localPiece.position.x : serverPiece.position.x,
+        y: Math.min(localPiece.position.y, serverPiece.position.y)
+      }
+    };
+    
+    const mergedPlayers = serverState.players.map(p => {
+      if (p.id === playerId) {
+        return { ...p, currentPiece: mergedPiece };
+      }
+      return p;
+    });
+    
+    set({ 
+      gameState: { ...serverState, players: mergedPlayers as PlayerState[] },
+      pendingActions: validPendingActions
+    });
   },
 
   pendingActions: [],

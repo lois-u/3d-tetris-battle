@@ -45,6 +45,7 @@ export function useLocalPrediction() {
       case 'rotate180':
       case 'hardDrop':
       case 'hold':
+        useGameStore.getState().clearPendingActions();
         return true;
     }
 
