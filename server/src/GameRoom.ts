@@ -203,6 +203,9 @@ export class GameRoom {
       case 'moveRight':
         actionPerformed = player.engine.moveRight().success;
         break;
+      case 'moveDown':
+        actionPerformed = player.engine.moveDown().success;
+        break;
       case 'softDrop':
         actionPerformed = player.engine.softDrop().success;
         break;

@@ -70,12 +70,12 @@ export function useGameInput(playSound?: (sound: SoundType) => void) {
   }, [sendAction]);
 
   const startDownMove = useCallback((key: string, sound?: SoundType) => {
-    sendAction({ type: 'softDrop' }, sound);
+    sendAction({ type: 'moveDown' }, sound);
 
     const dasTimer = setTimeout(() => {
       const arrInterval = setInterval(() => {
         if (keysPressed.current.has(key)) {
-          sendAction({ type: 'softDrop' });
+          sendAction({ type: 'moveDown' });
         } else {
           clearInterval(arrInterval);
           arrIntervals.current.delete(key);

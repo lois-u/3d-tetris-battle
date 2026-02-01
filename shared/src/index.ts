@@ -228,6 +228,7 @@ export interface LobbyPlayer {
 export type GameAction =
   | { type: 'moveLeft' }
   | { type: 'moveRight' }
+  | { type: 'moveDown' }
   | { type: 'softDrop' }
   | { type: 'hardDrop' }
   | { type: 'rotateCW' }

@@ -34,6 +34,7 @@ export function useLocalPrediction() {
         }
         break;
       case 'softDrop':
+      case 'moveDown':
         if (canMove(newBoard, newPiece, 0, -1)) {
           newPiece = { ...newPiece, position: { ...newPiece.position, y: newPiece.position.y - 1 } };
           success = true;
