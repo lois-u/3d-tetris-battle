@@ -5,9 +5,9 @@ import { useLocalPrediction } from './useLocalPrediction';
 
 type SoundType = 'move' | 'rotate' | 'drop' | 'hardDrop' | 'hold' | 'lineClear' | 'tetris' | 'tSpin' | 'combo' | 'levelUp' | 'gameOver' | 'countdown' | 'start';
 
-const FAST_DAS = 80;
-const FAST_ARR = 5;
-const DOWN_ARR = 40;
+const FAST_DAS = 133;
+const FAST_ARR = 50;
+const DOWN_ARR = 50;
 
 export function useGameInput(playSound?: (sound: SoundType) => void) {
   const { applyLocalAction } = useLocalPrediction();
