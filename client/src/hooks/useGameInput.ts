@@ -51,6 +51,18 @@ export function useGameInput(playSound?: (sound: SoundType) => void) {
     }
   }, []);
 
+  const stopAllDAS = useCallback(() => {
+    for (const timer of dasTimers.current.values()) {
+      clearTimeout(timer);
+    }
+    for (const interval of arrIntervals.current.values()) {
+      clearInterval(interval);
+    }
+    dasTimers.current.clear();
+    arrIntervals.current.clear();
+    keysPressed.current.clear();
+  }, []);
+
   const startDAS = useCallback((key: string, action: GameAction, sound?: SoundType) => {
     sendAction(action, sound);
 
@@ -107,6 +119,7 @@ export function useGameInput(playSound?: (sound: SoundType) => void) {
           break;
         case 'Space':
           e.preventDefault();
+          stopAllDAS();
           sendAction({ type: 'hardDrop' }, 'hardDrop');
           break;
         case 'ArrowUp':
@@ -145,5 +158,5 @@ export function useGameInput(playSound?: (sound: SoundType) => void) {
         clearInterval(interval);
       }
     };
-  }, [sendAction, startDAS, startDownMove, stopDAS]);
+  }, [sendAction, startDAS, startDownMove, stopDAS, stopAllDAS]);
 }
