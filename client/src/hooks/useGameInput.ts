@@ -5,53 +5,49 @@ import { useLocalPrediction } from './useLocalPrediction';
 
 type SoundType = 'move' | 'rotate' | 'drop' | 'hardDrop' | 'hold' | 'lineClear' | 'tetris' | 'tSpin' | 'combo' | 'levelUp' | 'gameOver' | 'countdown' | 'start';
 
+const FAST_DAS = 80;
+const FAST_ARR = 0;
+const DOWN_ARR = 30;
+
 export function useGameInput(playSound?: (sound: SoundType) => void) {
   const { socket, gameState, playerId } = useGameStore();
   const { applyLocalAction } = useLocalPrediction();
+  
+  const socketRef = useRef(socket);
+  const gameStateRef = useRef(gameState);
+  const playerIdRef = useRef(playerId);
+  const applyLocalActionRef = useRef(applyLocalAction);
+  const playSoundRef = useRef(playSound);
+  
   const keysPressed = useRef<Set<string>>(new Set());
   const dasTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const arrIntervals = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
 
-  const sendAction = useCallback(
-    (action: GameAction, sound?: SoundType) => {
-      if (!socket || !gameState || gameState.status !== 'playing') return;
+  useEffect(() => {
+    socketRef.current = socket;
+    gameStateRef.current = gameState;
+    playerIdRef.current = playerId;
+    applyLocalActionRef.current = applyLocalAction;
+    playSoundRef.current = playSound;
+  }, [socket, gameState, playerId, applyLocalAction, playSound]);
 
-      const myState = gameState.players.find((p) => p.id === playerId);
-      if (!myState?.isAlive) return;
+  const sendAction = useCallback((action: GameAction, sound?: SoundType) => {
+    const gs = gameStateRef.current;
+    const sock = socketRef.current;
+    const pid = playerIdRef.current;
+    
+    if (!sock || !gs || gs.status !== 'playing') return;
 
-      // Apply action locally first for instant feedback
-      applyLocalAction(action);
-      
-      // Then send to server for authoritative update
-      socket.emit('gameAction', action);
-      if (sound && playSound) {
-        playSound(sound);
-      }
-    },
-    [socket, gameState, playerId, playSound, applyLocalAction]
-  );
+    const myState = gs.players.find((p) => p.id === pid);
+    if (!myState?.isAlive) return;
 
-  const startDAS = useCallback(
-    (key: string, action: GameAction, sound?: SoundType) => {
-      sendAction(action, sound);
-
-      const dasTimer = setTimeout(() => {
-        const arrInterval = setInterval(() => {
-          if (keysPressed.current.has(key)) {
-            sendAction(action);
-          } else {
-            clearInterval(arrInterval);
-            arrIntervals.current.delete(key);
-          }
-        }, GAME_CONFIG.arr);
-
-        arrIntervals.current.set(key, arrInterval);
-      }, GAME_CONFIG.das);
-
-      dasTimers.current.set(key, dasTimer);
-    },
-    [sendAction]
-  );
+    applyLocalActionRef.current(action);
+    sock.emit('gameAction', action);
+    
+    if (sound && playSoundRef.current) {
+      playSoundRef.current(sound);
+    }
+  }, []);
 
   const stopDAS = useCallback((key: string) => {
     const dasTimer = dasTimers.current.get(key);
@@ -67,10 +63,38 @@ export function useGameInput(playSound?: (sound: SoundType) => void) {
     }
   }, []);
 
-  const startSoftDrop = useCallback(
-    (key: string, sound?: SoundType) => {
-      sendAction({ type: 'softDrop' }, sound);
+  const startDAS = useCallback((key: string, action: GameAction, sound?: SoundType) => {
+    sendAction(action, sound);
 
+    const dasTimer = setTimeout(() => {
+      if (FAST_ARR === 0) {
+        const instantMove = () => {
+          if (keysPressed.current.has(key)) {
+            sendAction(action);
+            requestAnimationFrame(instantMove);
+          }
+        };
+        requestAnimationFrame(instantMove);
+      } else {
+        const arrInterval = setInterval(() => {
+          if (keysPressed.current.has(key)) {
+            sendAction(action);
+          } else {
+            clearInterval(arrInterval);
+            arrIntervals.current.delete(key);
+          }
+        }, FAST_ARR);
+        arrIntervals.current.set(key, arrInterval);
+      }
+    }, FAST_DAS);
+
+    dasTimers.current.set(key, dasTimer);
+  }, [sendAction]);
+
+  const startDownMove = useCallback((key: string, sound?: SoundType) => {
+    sendAction({ type: 'softDrop' }, sound);
+
+    const dasTimer = setTimeout(() => {
       const arrInterval = setInterval(() => {
         if (keysPressed.current.has(key)) {
           sendAction({ type: 'softDrop' });
@@ -78,12 +102,12 @@ export function useGameInput(playSound?: (sound: SoundType) => void) {
           clearInterval(arrInterval);
           arrIntervals.current.delete(key);
         }
-      }, GAME_CONFIG.arr * 2);
-
+      }, DOWN_ARR);
       arrIntervals.current.set(key, arrInterval);
-    },
-    [sendAction]
-  );
+    }, FAST_DAS);
+
+    dasTimers.current.set(key, dasTimer);
+  }, [sendAction]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -101,7 +125,7 @@ export function useGameInput(playSound?: (sound: SoundType) => void) {
           break;
         case 'ArrowDown':
         case 'KeyS':
-          startSoftDrop(e.code, 'drop');
+          startDownMove(e.code, 'drop');
           break;
         case 'Space':
           e.preventDefault();
@@ -143,5 +167,5 @@ export function useGameInput(playSound?: (sound: SoundType) => void) {
         clearInterval(interval);
       }
     };
-  }, [sendAction, startDAS, startSoftDrop, stopDAS]);
+  }, [sendAction, startDAS, startDownMove, stopDAS]);
 }
