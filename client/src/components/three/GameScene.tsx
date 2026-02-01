@@ -64,12 +64,12 @@ function OpponentBoard({ opponent, position }: OpponentBoardProps) {
         <meshBasicMaterial color={opponent.isAlive ? '#1a1a2e' : '#3a1a1a'} transparent opacity={0.8} />
       </mesh>
       <Text
-        position={[5, -2, 0]}
-        fontSize={1.5}
+        position={[5, -3, 1]}
+        fontSize={0.9}
         color={opponent.isAlive ? '#ffffff' : '#ff4444'}
         anchorX="center"
-        anchorY="middle"
-        outlineWidth={0.05}
+        anchorY="top"
+        outlineWidth={0.03}
         outlineColor="#000000"
       >
         {opponent.name}
