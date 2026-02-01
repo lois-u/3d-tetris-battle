@@ -80,8 +80,18 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 0 30px rgba(0, 240, 240, 0.1), inset 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.2s ease;
+}
+
+.scrollbar-thin:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
 .scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
@@ -89,19 +99,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: transparent;
-  border-radius: 2px;
-  transition: background 0.2s ease;
+  background: rgba(255, 255, 255, 0);
+  border-radius: 3px;
 }
 
-.scrollbar-thin:hover::-webkit-scrollbar-thumb,
-.scrollbar-thin:focus::-webkit-scrollbar-thumb,
-.scrollbar-thin:focus-within::-webkit-scrollbar-thumb {
+.scrollbar-thin:hover::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
 }
 
-.scrollbar-thin:hover::-webkit-scrollbar-thumb:hover,
-.scrollbar-thin:focus::-webkit-scrollbar-thumb:hover,
-.scrollbar-thin:focus-within::-webkit-scrollbar-thumb:hover {
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.4);
 }
