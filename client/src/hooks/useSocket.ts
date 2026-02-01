@@ -62,8 +62,12 @@ export function useSocket() {
     socket.on('roomJoined', ({ room }) => {
       setRoomId(room.id);
       setCurrentRoom(room);
-      clearChatMessages();
       setScreen('room');
+    });
+
+    socket.on('chatHistory', ({ messages }) => {
+      clearChatMessages();
+      messages.forEach(addChatMessage);
     });
 
     socket.on('roomUpdate', ({ room }) => {

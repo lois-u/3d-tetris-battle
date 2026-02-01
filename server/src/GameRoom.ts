@@ -9,6 +9,7 @@ import {
   TetrisEngine,
   GAME_CONFIG,
   RoomInfo,
+  ChatMessage,
 } from '@3d-tetris/shared';
 
 interface PlayerData {
@@ -30,6 +31,7 @@ export class GameRoom {
   private gameLoopInterval: NodeJS.Timeout | null = null;
   private countdownInterval: NodeJS.Timeout | null = null;
   private io: Server<ClientToServerEvents, ServerToClientEvents>;
+  private chatMessages: ChatMessage[] = [];
 
   constructor(
     id: string,
@@ -101,6 +103,17 @@ export class GameRoom {
       maxPlayers: this.maxPlayers,
       status: this.status,
     };
+  }
+
+  addChatMessage(message: ChatMessage): void {
+    this.chatMessages.push(message);
+    if (this.chatMessages.length > 50) {
+      this.chatMessages.shift();
+    }
+  }
+
+  getChatHistory(): ChatMessage[] {
+    return [...this.chatMessages];
   }
 
   canStart(): boolean {

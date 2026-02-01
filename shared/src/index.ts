@@ -200,6 +200,7 @@ export interface ServerToClientEvents {
   roomUpdate: (data: { room: RoomInfo }) => void;
   matchFound: (data: { roomId: string; opponents: LobbyPlayer[] }) => void;
   chatMessage: (data: { message: ChatMessage }) => void;
+  chatHistory: (data: { messages: ChatMessage[] }) => void;
 
   gameState: (state: GameState) => void;
   gameStart: (state: GameState) => void;

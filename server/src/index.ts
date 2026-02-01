@@ -197,6 +197,7 @@ io.on('connection', (socket) => {
       
       const roomInfo = room.getRoomInfo();
       socket.emit('roomJoined', { room: roomInfo });
+      socket.emit('chatHistory', { messages: room.getChatHistory() });
       io.to(roomId).emit('roomUpdate', { room: roomInfo });
       broadcastLobbyUpdate();
 
@@ -258,6 +259,7 @@ io.on('connection', (socket) => {
       timestamp: Date.now(),
     };
 
+    room.addChatMessage(chatMessage);
     io.to(roomId).emit('chatMessage', { message: chatMessage });
   });
 
