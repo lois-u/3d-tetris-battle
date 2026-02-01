@@ -112,9 +112,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const localPiece = localMyState.currentPiece;
       const serverPiece = serverMyState.currentPiece;
       
-      // X: 로컬 유지 (좌우 스냅백 방지), Y: 더 낮은 값 (중력 + 아래이동 반영)
+      // X만 로컬 유지, 나머지(rotation, shape, Y)는 서버 값 사용
       const mergedPiece = {
-        ...localPiece,
+        ...serverPiece,
         position: {
           x: localPiece.position.x,
           y: Math.min(localPiece.position.y, serverPiece.position.y)
