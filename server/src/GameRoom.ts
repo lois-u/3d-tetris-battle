@@ -254,8 +254,8 @@ export class GameRoom {
         break;
     }
 
-    if (actionPerformed && player.engine.isOnGround()) {
-      player.lastLockTime = player.lastLockTime || Date.now();
+    if (actionPerformed && player.engine.isOnGround() && action.type !== 'moveDown' && action.type !== 'softDrop') {
+      player.lastLockTime = Date.now();
     }
 
     this.broadcastState();
