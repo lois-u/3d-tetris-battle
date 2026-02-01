@@ -9,7 +9,7 @@ import {
 
 export function useLocalPrediction() {
   const applyLocalAction = useCallback((action: GameAction): boolean => {
-    const { gameState, playerId, setGameState, setLastPredictionTime } = useGameStore.getState();
+    const { gameState, playerId, setGameState, addPendingAction } = useGameStore.getState();
     
     if (!gameState || !playerId) return false;
 
@@ -59,7 +59,7 @@ export function useLocalPrediction() {
         return p;
       });
 
-      setLastPredictionTime(Date.now());
+      addPendingAction(action);
       setGameState({
         ...gameState,
         players: updatedPlayers as PlayerState[],
