@@ -111,12 +111,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
         localMyState.currentPiece.type === serverMyState.currentPiece.type) {
       const localPiece = localMyState.currentPiece;
       const serverPiece = serverMyState.currentPiece;
+      const { pendingActions } = get();
+      const now = Date.now();
       
-      // X만 로컬 유지, 나머지(rotation, shape, Y)는 서버 값 사용
+      // 최근 입력(50ms 이내)이 있으면 로컬 X 유지, 아니면 서버 X로 수렴
+      const latestAction = pendingActions[pendingActions.length - 1];
+      const hasRecentInput = latestAction && (now - latestAction.timestamp) < 50;
+      
       const mergedPiece = {
         ...serverPiece,
         position: {
-          x: localPiece.position.x,
+          x: hasRecentInput ? localPiece.position.x : serverPiece.position.x,
           y: Math.min(localPiece.position.y, serverPiece.position.y)
         }
       };
