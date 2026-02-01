@@ -107,18 +107,28 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const serverMyState = serverState.players.find(p => p.id === playerId);
     const localMyState = gameState?.players.find(p => p.id === playerId);
     
-    // 같은 피스 타입이면 로컬 위치 100% 유지 (스냅백 완전 방지)
     if (localMyState?.currentPiece && serverMyState?.currentPiece &&
         localMyState.currentPiece.type === serverMyState.currentPiece.type) {
+      const localPiece = localMyState.currentPiece;
+      const serverPiece = serverMyState.currentPiece;
+      
+      // X: 로컬 유지 (좌우 스냅백 방지), Y: 더 낮은 값 (중력 + 아래이동 반영)
+      const mergedPiece = {
+        ...localPiece,
+        position: {
+          x: localPiece.position.x,
+          y: Math.min(localPiece.position.y, serverPiece.position.y)
+        }
+      };
+      
       const mergedPlayers = serverState.players.map(p => {
-        if (p.id === playerId && localMyState.currentPiece) {
-          return { ...p, currentPiece: localMyState.currentPiece };
+        if (p.id === playerId) {
+          return { ...p, currentPiece: mergedPiece };
         }
         return p;
       });
       set({ gameState: { ...serverState, players: mergedPlayers as PlayerState[] } });
     } else {
-      // 피스 타입이 다르면 (새 피스 스폰) 서버 상태 완전 수용
       set({ gameState: serverState, pendingActions: [] });
     }
   },
