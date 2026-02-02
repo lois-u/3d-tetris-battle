@@ -8,6 +8,7 @@ type SoundType = 'move' | 'rotate' | 'drop' | 'hardDrop' | 'hold' | 'lineClear' 
 const FAST_DAS = 133;
 const FAST_ARR = 50;
 const DOWN_ARR = 50;
+const HARD_DROP_LOCK_MS = 100;
 
 export function useGameInput(playSound?: (sound: SoundType) => void) {
   const { applyLocalAction } = useLocalPrediction();
@@ -16,18 +17,28 @@ export function useGameInput(playSound?: (sound: SoundType) => void) {
   const dasTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const arrIntervals = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
   const playSoundRef = useRef(playSound);
+  const lastHardDropTime = useRef<number>(0);
 
   useEffect(() => {
     playSoundRef.current = playSound;
   }, [playSound]);
 
-  const sendAction = useCallback((action: GameAction, sound?: SoundType) => {
+  const sendAction = useCallback((action: GameAction, sound?: SoundType, isHardDrop?: boolean) => {
     const { socket, gameState, playerId } = useGameStore.getState();
     
     if (!socket || !gameState || gameState.status !== 'playing') return;
 
     const myState = gameState.players.find((p) => p.id === playerId);
     if (!myState?.isAlive) return;
+
+    const isMoveAction = action.type === 'moveLeft' || action.type === 'moveRight';
+    if (isMoveAction && Date.now() - lastHardDropTime.current < HARD_DROP_LOCK_MS) {
+      return;
+    }
+
+    if (isHardDrop) {
+      lastHardDropTime.current = Date.now();
+    }
 
     applyLocalAction(action);
     socket.emit('gameAction', action);
@@ -120,7 +131,7 @@ export function useGameInput(playSound?: (sound: SoundType) => void) {
         case 'Space':
           e.preventDefault();
           stopAllDAS();
-          sendAction({ type: 'hardDrop' }, 'hardDrop');
+          sendAction({ type: 'hardDrop' }, 'hardDrop', true);
           break;
         case 'ArrowUp':
         case 'KeyX':
