@@ -181,8 +181,15 @@ export function useLocalPrediction() {
       }
 
       case 'hardDrop': {
-        const ghostY = getGhostY(board, newPiece);
-        const droppedPiece = { ...newPiece, position: { ...newPiece.position, y: ghostY } };
+        const serverPiece = myState.currentPiece;
+        const localPositionValidOnServer = canPlacePiece(board, newPiece);
+        
+        const validatedPiece = localPositionValidOnServer || !serverPiece
+          ? newPiece
+          : { ...newPiece, position: { ...newPiece.position, x: serverPiece.position.x } };
+        
+        const ghostY = getGhostY(board, validatedPiece);
+        const droppedPiece = { ...validatedPiece, position: { ...validatedPiece.position, y: ghostY } };
         const lockedBoard = lockPieceToBoard(board, droppedPiece);
         
         const nextPieceType = myState.nextPieces[0];
