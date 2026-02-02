@@ -1,6 +1,6 @@
 # 3D Tetris Battle
 
-실시간 멀티플레이어 3D 테트리스 대전 게임
+실시간 멀티플레이어 3D 테트리스 대전 게임 + 솔로 모드
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
 ![React](https://img.shields.io/badge/React-18.2-61dafb)
@@ -20,6 +20,12 @@
 - **홀드 시스템** - 나중에 사용할 피스 저장
 - **다음 피스 큐** - 다음에 나올 5개의 피스 미리보기
 
+### 솔로 모드
+- **오프라인 플레이** - 서버 연결 없이 싱글 플레이어 게임
+- **점수 도전** - 개인 최고 점수에 도전
+- **전체 기능** - 멀티플레이어와 동일한 게임 메카닉 (중력, 락 딜레이 등)
+- **ESC로 종료** - 언제든지 메뉴로 복귀 가능
+
 ### 멀티플레이어 대전 (2-8인)
 - **실시간 PvP** - 친구 또는 랜덤 상대와 대전
 - **가비지 라인** - 라인 클리어 시 상대에게 방해 라인 전송
@@ -27,6 +33,11 @@
 - **방 시스템** - 게임 방 생성 또는 참가
 - **빠른 매치** - 선호도 설정이 가능한 자동 매칭
 - **대기실 채팅** - 대기 중 다른 플레이어와 채팅 (메시지 기록 유지)
+
+### 오디오
+- **8비트 BGM** - 게임 중 랜덤 배경음악 재생 (Korobeiniki, Type B, Type C)
+- **효과음** - 이동, 회전, 드랍, 라인 클리어 등 Web Audio API 기반
+- **토글 가능** - 우측 상단 버튼으로 사운드 on/off
 
 ### 점수 시스템
 | 액션 | 점수 | 전송 가비지 |
@@ -60,6 +71,7 @@
 | `↑` / `X` | 시계 방향 회전 |
 | `Z` / `Ctrl` | 반시계 방향 회전 |
 | `C` / `Shift` | 홀드 |
+| `ESC` | 솔로 모드 종료 |
 
 ### 입력 설정
 - **DAS (Delayed Auto Shift)**: 133ms
@@ -102,13 +114,14 @@
 ├── client/                 # React 프론트엔드
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── screens/    # Menu, Lobby, Room, Game, GameOver
-│   │   │   ├── three/      # 3D 컴포넌트 (Board, Block, Tetromino)
+│   │   │   ├── screens/    # Menu, Lobby, Room, Game, GameOver, SoloGame, SoloGameOver
+│   │   │   ├── three/      # 3D 컴포넌트 (Board, Block, Tetromino, SoloGameScene)
 │   │   │   └── ui/         # HUD, ScoreBoard, NextQueue, HoldPiece
 │   │   ├── hooks/
 │   │   │   ├── useSocket.ts         # Socket.IO 연결
 │   │   │   ├── useGameInput.ts      # DAS/ARR 포함 키보드 입력
-│   │   │   └── useLocalPrediction.ts # 클라이언트 측 예측
+│   │   │   ├── useLocalPrediction.ts # 클라이언트 측 예측
+│   │   │   └── useSound.ts          # 효과음 및 BGM (Web Audio API)
 │   │   ├── store/
 │   │   │   └── gameStore.ts         # Zustand 상태 관리
 │   │   └── App.tsx
