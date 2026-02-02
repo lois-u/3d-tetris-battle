@@ -181,15 +181,10 @@ export function useLocalPrediction() {
       }
 
       case 'hardDrop': {
-        const serverPiece = myState.currentPiece;
-        const positionsInSync = serverPiece && displayPiece.position.x === serverPiece.position.x;
-        
-        if (positionsInSync) {
-          const ghostY = getGhostY(board, displayPiece);
-          const droppedPiece = { ...displayPiece, position: { ...displayPiece.position, y: ghostY } };
-          const lockedBoard = lockPieceToBoard(board, droppedPiece);
-          setPendingLock({ board: lockedBoard, timestamp: Date.now() });
-        }
+        const ghostY = getGhostY(board, displayPiece);
+        const droppedPiece = { ...displayPiece, position: { ...displayPiece.position, y: ghostY } };
+        const lockedBoard = lockPieceToBoard(board, droppedPiece);
+        setPendingLock({ board: lockedBoard, timestamp: Date.now() });
         
         const nextPieceType = myState.nextPieces[0];
         if (nextPieceType) {

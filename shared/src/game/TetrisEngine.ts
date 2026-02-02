@@ -189,6 +189,27 @@ export class TetrisEngine {
     return { cellsDropped, lineClearResult };
   }
 
+  trySetPiecePosition(x: number, rotation: RotationState): boolean {
+    if (!this.currentPiece) return false;
+
+    const type = this.currentPiece.type;
+    const newShape = TETROMINO_SHAPES[type][rotation];
+
+    const testPiece: Tetromino = {
+      ...this.currentPiece,
+      position: { x, y: this.currentPiece.position.y },
+      rotation,
+      shape: newShape,
+    };
+
+    if (this.isValidPosition(testPiece)) {
+      this.currentPiece = testPiece;
+      return true;
+    }
+
+    return false;
+  }
+
   private getWallKicks(
     type: TetrominoType,
     fromRotation: RotationState,

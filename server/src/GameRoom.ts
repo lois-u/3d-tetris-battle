@@ -6,6 +6,7 @@ import {
   GameState,
   PlayerState,
   GameAction,
+  HardDropAction,
   TetrisEngine,
   GAME_CONFIG,
   RoomInfo,
@@ -223,6 +224,12 @@ export class GameRoom {
         actionPerformed = player.engine.softDrop().success;
         break;
       case 'hardDrop': {
+        const hardDropAction = action as HardDropAction;
+        
+        if (hardDropAction.position !== undefined && hardDropAction.rotation !== undefined) {
+          player.engine.trySetPiecePosition(hardDropAction.position.x, hardDropAction.rotation);
+        }
+        
         const result = player.engine.hardDrop();
         actionPerformed = true;
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useGameStore } from '../store/gameStore';
-import { GameAction } from '@3d-tetris/shared';
+import { GameAction, HardDropAction } from '@3d-tetris/shared';
 import { useLocalPrediction } from './useLocalPrediction';
 
 type SoundType = 'move' | 'rotate' | 'drop' | 'hardDrop' | 'hold' | 'lineClear' | 'tetris' | 'tSpin' | 'combo' | 'levelUp' | 'gameOver' | 'countdown' | 'start';
@@ -128,11 +128,18 @@ export function useGameInput(playSound?: (sound: SoundType) => void) {
         case 'KeyS':
           startDownMove(e.code, 'drop');
           break;
-        case 'Space':
+        case 'Space': {
           e.preventDefault();
           stopAllDAS();
-          sendAction({ type: 'hardDrop' }, 'hardDrop', true);
+          const { displayPiece } = useGameStore.getState();
+          const hardDropAction: HardDropAction = { type: 'hardDrop' };
+          if (displayPiece) {
+            hardDropAction.position = { ...displayPiece.position };
+            hardDropAction.rotation = displayPiece.rotation;
+          }
+          sendAction(hardDropAction, 'hardDrop', true);
           break;
+        }
         case 'ArrowUp':
         case 'KeyX':
           sendAction({ type: 'rotateCW' }, 'rotate');

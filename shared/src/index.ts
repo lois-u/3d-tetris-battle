@@ -236,12 +236,18 @@ export interface LobbyPlayer {
 // ===================
 // Game Actions
 // ===================
+export interface HardDropAction {
+  type: 'hardDrop';
+  position?: Position;
+  rotation?: RotationState;
+}
+
 export type GameAction =
   | { type: 'moveLeft' }
   | { type: 'moveRight' }
   | { type: 'moveDown' }
   | { type: 'softDrop' }
-  | { type: 'hardDrop' }
+  | HardDropAction
   | { type: 'rotateCW' }
   | { type: 'rotateCCW' }
   | { type: 'rotate180' }
