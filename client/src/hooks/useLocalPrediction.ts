@@ -86,6 +86,23 @@ function getGhostY(board: Board, piece: Tetromino): number {
   return ghostY;
 }
 
+function lockPieceToBoard(board: Board, piece: Tetromino): Board {
+  const newBoard: Board = [];
+  for (let y = 0; y < BOARD_HEIGHT; y++) {
+    newBoard[y] = board[y] ? [...board[y]] : Array(BOARD_WIDTH).fill(null);
+  }
+  
+  for (const block of piece.shape) {
+    const x = piece.position.x + block.x;
+    const y = piece.position.y + block.y;
+    if (y >= 0 && y < BOARD_HEIGHT && x >= 0 && x < BOARD_WIDTH) {
+      newBoard[y][x] = piece.type;
+    }
+  }
+  
+  return newBoard;
+}
+
 function createSpawnedPiece(type: TetrominoType): Tetromino {
   const spawnX = Math.floor((BOARD_WIDTH - 4) / 2);
   const spawnY = BOARD_HEIGHT;
@@ -99,7 +116,7 @@ function createSpawnedPiece(type: TetrominoType): Tetromino {
 
 export function useLocalPrediction() {
   const applyLocalAction = useCallback((action: GameAction): boolean => {
-    const { gameState, playerId, displayPiece, setDisplayPiece } = useGameStore.getState();
+    const { gameState, playerId, displayPiece, setDisplayPiece, setPendingLock } = useGameStore.getState();
     
     if (!gameState || !playerId || !displayPiece) return false;
 
@@ -164,6 +181,16 @@ export function useLocalPrediction() {
       }
 
       case 'hardDrop': {
+        const serverPiece = myState.currentPiece;
+        const positionsInSync = serverPiece && displayPiece.position.x === serverPiece.position.x;
+        
+        if (positionsInSync) {
+          const ghostY = getGhostY(board, displayPiece);
+          const droppedPiece = { ...displayPiece, position: { ...displayPiece.position, y: ghostY } };
+          const lockedBoard = lockPieceToBoard(board, droppedPiece);
+          setPendingLock({ board: lockedBoard, timestamp: Date.now() });
+        }
+        
         const nextPieceType = myState.nextPieces[0];
         if (nextPieceType) {
           const nextPiece = createSpawnedPiece(nextPieceType);
