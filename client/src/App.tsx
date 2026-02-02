@@ -5,6 +5,8 @@ import Lobby from './components/screens/Lobby';
 import Room from './components/screens/Room';
 import Game from './components/screens/Game';
 import GameOver from './components/screens/GameOver';
+import SoloGame from './components/screens/SoloGame';
+import SoloGameOver from './components/screens/SoloGameOver';
 
 export default function App() {
   const { screen } = useGameStore();
@@ -22,6 +24,10 @@ export default function App() {
         return <Game />;
       case 'gameOver':
         return <GameOver />;
+      case 'soloGame':
+        return <SoloGame />;
+      case 'soloGameOver':
+        return <SoloGameOver />;
       default:
         return <MainMenu />;
     }

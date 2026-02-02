@@ -22,6 +22,11 @@ export default function MainMenu() {
     setScreen('lobby');
   };
 
+  const handleSoloPlay = () => {
+    setPlayerName(name.trim() || 'Player');
+    setScreen('soloGame');
+  };
+
   return (
     <div className="w-full h-full flex flex-col items-center justify-center">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -59,8 +64,12 @@ export default function MainMenu() {
             {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
           </div>
 
-          <button onClick={handlePlay} className="btn-primary w-full">
+          <button type="button" onClick={handlePlay} className="btn-primary w-full">
             PLAY ONLINE
+          </button>
+
+          <button type="button" onClick={handleSoloPlay} className="btn-secondary w-full mt-3">
+            SOLO PLAY
           </button>
 
           <div className="mt-6 text-sm text-gray-400">

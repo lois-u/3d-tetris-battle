@@ -34,7 +34,7 @@ function hashBoard(board: (string | null)[][]): string {
   return hash.toString(36);
 }
 
-type Screen = 'menu' | 'lobby' | 'room' | 'game' | 'gameOver';
+type Screen = 'menu' | 'lobby' | 'room' | 'game' | 'gameOver' | 'soloGame' | 'soloGameOver';
 
 interface GameStore {
   screen: Screen;
@@ -87,6 +87,9 @@ interface GameStore {
 
   pendingGarbage: { lines: number; from: string } | null;
   setPendingGarbage: (garbage: { lines: number; from: string } | null) => void;
+
+  soloFinalScore: { score: number; level: number; lines: number } | null;
+  setSoloFinalScore: (score: { score: number; level: number; lines: number } | null) => void;
 
   getMyState: () => PlayerState | null;
   getOpponentStates: () => PlayerState[];
@@ -240,6 +243,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
   pendingGarbage: null,
   setPendingGarbage: (pendingGarbage) => set({ pendingGarbage }),
 
+  soloFinalScore: null,
+  setSoloFinalScore: (soloFinalScore) => set({ soloFinalScore }),
+
   getMyState: () => {
     const { gameState, playerId } = get();
     if (!gameState || !playerId) return null;
@@ -267,5 +273,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       syncState: { lastPieceType: null, lastBoardHash: '' },
       pendingLock: null,
       chatMessages: [],
+      soloFinalScore: null,
     }),
 }));
