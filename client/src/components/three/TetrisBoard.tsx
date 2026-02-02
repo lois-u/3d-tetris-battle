@@ -50,7 +50,7 @@ export default function TetrisBoard({
     <group scale={scale}>
       <mesh position={[0, 0, -0.6]}>
         <boxGeometry args={[BOARD_WIDTH + 0.2, BOARD_HEIGHT + 0.2, 0.1]} />
-        <meshStandardMaterial color="#0a0a1a" transparent opacity={0.9} />
+        <meshStandardMaterial color="#0d0d24" transparent opacity={0.95} />
       </mesh>
 
       <lineSegments position={[0, 0, -0.55]}>

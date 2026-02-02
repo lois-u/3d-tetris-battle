@@ -25,12 +25,11 @@ interface BGMTrack {
   bass: Note[];
 }
 
-// Korobeiniki (Type A) - Classic Tetris Theme
+// Korobeiniki (Type A) - Classic Tetris Theme - Refined
 const KOROBEINIKI: BGMTrack = {
   name: 'Korobeiniki',
-  tempo: 140,
+  tempo: 144,
   melody: [
-    // Main theme - Part A
     { pitch: 'E5', duration: 1 }, { pitch: 'B4', duration: 0.5 }, { pitch: 'C5', duration: 0.5 },
     { pitch: 'D5', duration: 1 }, { pitch: 'C5', duration: 0.5 }, { pitch: 'B4', duration: 0.5 },
     { pitch: 'A4', duration: 1 }, { pitch: 'A4', duration: 0.5 }, { pitch: 'C5', duration: 0.5 },
@@ -39,7 +38,6 @@ const KOROBEINIKI: BGMTrack = {
     { pitch: 'D5', duration: 1 }, { pitch: 'E5', duration: 1 },
     { pitch: 'C5', duration: 1 }, { pitch: 'A4', duration: 1 },
     { pitch: 'A4', duration: 2 },
-    // Part A repeat variation
     { pitch: 'REST', duration: 0.5 }, { pitch: 'D5', duration: 1 }, { pitch: 'F5', duration: 0.5 },
     { pitch: 'A5', duration: 1 }, { pitch: 'G5', duration: 0.5 }, { pitch: 'F5', duration: 0.5 },
     { pitch: 'E5', duration: 1.5 }, { pitch: 'C5', duration: 0.5 },
@@ -50,7 +48,6 @@ const KOROBEINIKI: BGMTrack = {
     { pitch: 'A4', duration: 2 },
   ],
   bass: [
-    // Bass line accompaniment
     { pitch: 'E3', duration: 0.5 }, { pitch: 'E4', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'E4', duration: 0.5 },
     { pitch: 'E3', duration: 0.5 }, { pitch: 'E4', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'E4', duration: 0.5 },
     { pitch: 'A3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 },
@@ -59,7 +56,6 @@ const KOROBEINIKI: BGMTrack = {
     { pitch: 'E3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 },
     { pitch: 'A3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 },
     { pitch: 'A3', duration: 1 }, { pitch: 'REST', duration: 1 },
-    // Second part bass
     { pitch: 'D3', duration: 0.5 }, { pitch: 'D4', duration: 0.5 }, { pitch: 'D3', duration: 0.5 }, { pitch: 'D4', duration: 0.5 },
     { pitch: 'D3', duration: 0.5 }, { pitch: 'D4', duration: 0.5 }, { pitch: 'D3', duration: 0.5 }, { pitch: 'D4', duration: 0.5 },
     { pitch: 'C4', duration: 0.5 }, { pitch: 'C4', duration: 0.5 }, { pitch: 'C4', duration: 0.5 }, { pitch: 'C4', duration: 0.5 },
@@ -71,63 +67,187 @@ const KOROBEINIKI: BGMTrack = {
   ],
 };
 
-// Type B - Bradinsky inspired melody
-const TYPE_B: BGMTrack = {
-  name: 'Type B',
-  tempo: 120,
+// Cyberpunk Rush - Modern, energetic (Tetris 99 inspired)
+const CYBERPUNK_RUSH: BGMTrack = {
+  name: 'Cyberpunk Rush',
+  tempo: 150,
   melody: [
-    { pitch: 'G4', duration: 1 }, { pitch: 'E4', duration: 0.5 }, { pitch: 'E4', duration: 0.5 },
-    { pitch: 'F4', duration: 1 }, { pitch: 'D4', duration: 1 },
-    { pitch: 'E4', duration: 1 }, { pitch: 'C4', duration: 0.5 }, { pitch: 'C4', duration: 0.5 },
-    { pitch: 'D4', duration: 1 }, { pitch: 'B3', duration: 1 },
-    { pitch: 'C4', duration: 2 }, { pitch: 'REST', duration: 0.5 }, { pitch: 'G4', duration: 0.5 },
-    { pitch: 'A4', duration: 1 }, { pitch: 'G4', duration: 0.5 }, { pitch: 'F4', duration: 0.5 },
-    { pitch: 'E4', duration: 1.5 }, { pitch: 'E4', duration: 0.5 },
-    { pitch: 'F4', duration: 1 }, { pitch: 'E4', duration: 0.5 }, { pitch: 'D4', duration: 0.5 },
-    { pitch: 'C4', duration: 2 },
-  ],
-  bass: [
-    { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 },
-    { pitch: 'G3', duration: 0.5 }, { pitch: 'D3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'D3', duration: 0.5 },
-    { pitch: 'A3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 },
-    { pitch: 'G3', duration: 0.5 }, { pitch: 'D3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'D3', duration: 0.5 },
-    { pitch: 'C3', duration: 1 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 },
-    { pitch: 'F3', duration: 0.5 }, { pitch: 'C4', duration: 0.5 }, { pitch: 'F3', duration: 0.5 }, { pitch: 'C4', duration: 0.5 },
-    { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 },
-    { pitch: 'G3', duration: 0.5 }, { pitch: 'D3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'D3', duration: 0.5 },
-    { pitch: 'C3', duration: 2 },
-  ],
-};
-
-// Type C - Faster, more intense
-const TYPE_C: BGMTrack = {
-  name: 'Type C',
-  tempo: 160,
-  melody: [
-    { pitch: 'E5', duration: 0.5 }, { pitch: 'E5', duration: 0.5 }, { pitch: 'E5', duration: 0.5 }, { pitch: 'REST', duration: 0.5 },
-    { pitch: 'C5', duration: 0.5 }, { pitch: 'E5', duration: 0.5 }, { pitch: 'G5', duration: 1 },
-    { pitch: 'G4', duration: 1 }, { pitch: 'REST', duration: 1 },
-    { pitch: 'C5', duration: 1 }, { pitch: 'G4', duration: 0.5 }, { pitch: 'REST', duration: 0.5 },
-    { pitch: 'E4', duration: 1 }, { pitch: 'A4', duration: 0.5 }, { pitch: 'B4', duration: 0.5 },
-    { pitch: 'A#4', duration: 0.5 }, { pitch: 'A4', duration: 1 }, { pitch: 'G4', duration: 0.5 },
-    { pitch: 'E5', duration: 0.75 }, { pitch: 'G5', duration: 0.75 }, { pitch: 'A5', duration: 0.5 },
-    { pitch: 'F5', duration: 0.5 }, { pitch: 'G5', duration: 0.5 }, { pitch: 'REST', duration: 0.5 }, { pitch: 'E5', duration: 0.5 },
+    { pitch: 'E5', duration: 0.25 }, { pitch: 'E5', duration: 0.25 }, { pitch: 'REST', duration: 0.25 }, { pitch: 'E5', duration: 0.25 },
+    { pitch: 'REST', duration: 0.25 }, { pitch: 'C5', duration: 0.25 }, { pitch: 'E5', duration: 0.5 },
+    { pitch: 'G5', duration: 0.5 }, { pitch: 'REST', duration: 0.5 }, { pitch: 'G4', duration: 0.5 }, { pitch: 'REST', duration: 0.5 },
+    { pitch: 'C5', duration: 0.5 }, { pitch: 'REST', duration: 0.25 }, { pitch: 'G4', duration: 0.5 }, { pitch: 'REST', duration: 0.25 },
+    { pitch: 'E4', duration: 0.5 }, { pitch: 'REST', duration: 0.5 },
+    { pitch: 'A4', duration: 0.5 }, { pitch: 'B4', duration: 0.5 }, { pitch: 'A#4', duration: 0.25 }, { pitch: 'A4', duration: 0.75 },
+    { pitch: 'G4', duration: 0.5 }, { pitch: 'E5', duration: 0.5 }, { pitch: 'G5', duration: 0.5 }, { pitch: 'A5', duration: 0.5 },
+    { pitch: 'F5', duration: 0.5 }, { pitch: 'G5', duration: 0.25 }, { pitch: 'REST', duration: 0.25 }, { pitch: 'E5', duration: 0.5 },
+    { pitch: 'C5', duration: 0.5 }, { pitch: 'D5', duration: 0.5 }, { pitch: 'B4', duration: 1 },
+    { pitch: 'C5', duration: 0.5 }, { pitch: 'REST', duration: 0.25 }, { pitch: 'G4', duration: 0.5 }, { pitch: 'REST', duration: 0.25 },
+    { pitch: 'E4', duration: 0.5 }, { pitch: 'REST', duration: 0.5 },
+    { pitch: 'A4', duration: 0.5 }, { pitch: 'B4', duration: 0.5 }, { pitch: 'A#4', duration: 0.25 }, { pitch: 'A4', duration: 0.75 },
+    { pitch: 'G4', duration: 0.5 }, { pitch: 'E5', duration: 0.5 }, { pitch: 'G5', duration: 0.5 }, { pitch: 'A5', duration: 0.5 },
+    { pitch: 'F5', duration: 0.5 }, { pitch: 'G5', duration: 0.25 }, { pitch: 'REST', duration: 0.25 }, { pitch: 'E5', duration: 0.5 },
     { pitch: 'C5', duration: 0.5 }, { pitch: 'D5', duration: 0.5 }, { pitch: 'B4', duration: 1 },
   ],
   bass: [
+    { pitch: 'C3', duration: 0.25 }, { pitch: 'C3', duration: 0.25 }, { pitch: 'C4', duration: 0.25 }, { pitch: 'C3', duration: 0.25 },
+    { pitch: 'C3', duration: 0.25 }, { pitch: 'C4', duration: 0.25 }, { pitch: 'C3', duration: 0.5 },
+    { pitch: 'G3', duration: 0.5 }, { pitch: 'G3', duration: 0.25 }, { pitch: 'G4', duration: 0.25 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 },
+    { pitch: 'C3', duration: 0.5 }, { pitch: 'C4', duration: 0.25 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 0.25 },
+    { pitch: 'A3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 },
+    { pitch: 'F3', duration: 0.5 }, { pitch: 'F3', duration: 0.5 }, { pitch: 'F3', duration: 0.25 }, { pitch: 'F3', duration: 0.75 },
     { pitch: 'C3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 },
-    { pitch: 'C3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 1 },
-    { pitch: 'G3', duration: 1 }, { pitch: 'REST', duration: 1 },
-    { pitch: 'C3', duration: 1 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 },
-    { pitch: 'A3', duration: 1 }, { pitch: 'A3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 },
-    { pitch: 'A#3', duration: 0.5 }, { pitch: 'A3', duration: 1 }, { pitch: 'G3', duration: 0.5 },
-    { pitch: 'C3', duration: 0.75 }, { pitch: 'C3', duration: 0.75 }, { pitch: 'C3', duration: 0.5 },
-    { pitch: 'F3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 },
-    { pitch: 'C3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 1 },
+    { pitch: 'D3', duration: 0.5 }, { pitch: 'D3', duration: 0.25 }, { pitch: 'D4', duration: 0.25 }, { pitch: 'D3', duration: 0.5 },
+    { pitch: 'G3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'G3', duration: 1 },
+    { pitch: 'C3', duration: 0.5 }, { pitch: 'C4', duration: 0.25 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 0.25 },
+    { pitch: 'A3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 },
+    { pitch: 'F3', duration: 0.5 }, { pitch: 'F3', duration: 0.5 }, { pitch: 'F3', duration: 0.25 }, { pitch: 'F3', duration: 0.75 },
+    { pitch: 'C3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 },
+    { pitch: 'D3', duration: 0.5 }, { pitch: 'D3', duration: 0.25 }, { pitch: 'D4', duration: 0.25 }, { pitch: 'D3', duration: 0.5 },
+    { pitch: 'G3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'G3', duration: 1 },
   ],
 };
 
-const BGM_TRACKS: BGMTrack[] = [KOROBEINIKI, TYPE_B, TYPE_C];
+// Neon Cascade - Ambient, flowing (Tetris Effect inspired)
+const NEON_CASCADE: BGMTrack = {
+  name: 'Neon Cascade',
+  tempo: 110,
+  melody: [
+    { pitch: 'E4', duration: 1 }, { pitch: 'G4', duration: 1 }, { pitch: 'A4', duration: 1 }, { pitch: 'B4', duration: 1 },
+    { pitch: 'E5', duration: 2 }, { pitch: 'D5', duration: 1 }, { pitch: 'B4', duration: 1 },
+    { pitch: 'A4', duration: 1.5 }, { pitch: 'G4', duration: 0.5 }, { pitch: 'E4', duration: 1 }, { pitch: 'G4', duration: 1 },
+    { pitch: 'A4', duration: 2 }, { pitch: 'REST', duration: 2 },
+    { pitch: 'B4', duration: 1 }, { pitch: 'C5', duration: 1 }, { pitch: 'D5', duration: 1 }, { pitch: 'E5', duration: 1 },
+    { pitch: 'G5', duration: 2 }, { pitch: 'E5', duration: 1 }, { pitch: 'D5', duration: 1 },
+    { pitch: 'C5', duration: 1.5 }, { pitch: 'B4', duration: 0.5 }, { pitch: 'A4', duration: 1 }, { pitch: 'G4', duration: 1 },
+    { pitch: 'E4', duration: 2 }, { pitch: 'REST', duration: 2 },
+  ],
+  bass: [
+    { pitch: 'E3', duration: 2 }, { pitch: 'E3', duration: 2 },
+    { pitch: 'C3', duration: 2 }, { pitch: 'G3', duration: 2 },
+    { pitch: 'A3', duration: 2 }, { pitch: 'E3', duration: 2 },
+    { pitch: 'A3', duration: 2 }, { pitch: 'A3', duration: 2 },
+    { pitch: 'G3', duration: 2 }, { pitch: 'G3', duration: 2 },
+    { pitch: 'C3', duration: 2 }, { pitch: 'G3', duration: 2 },
+    { pitch: 'A3', duration: 2 }, { pitch: 'D3', duration: 2 },
+    { pitch: 'E3', duration: 2 }, { pitch: 'E3', duration: 2 },
+  ],
+};
+
+// Pixel Storm - Fast, aggressive
+const PIXEL_STORM: BGMTrack = {
+  name: 'Pixel Storm',
+  tempo: 170,
+  melody: [
+    { pitch: 'A4', duration: 0.25 }, { pitch: 'A4', duration: 0.25 }, { pitch: 'A4', duration: 0.25 }, { pitch: 'A4', duration: 0.25 },
+    { pitch: 'G4', duration: 0.25 }, { pitch: 'G4', duration: 0.25 }, { pitch: 'A4', duration: 0.5 },
+    { pitch: 'A4', duration: 0.25 }, { pitch: 'A4', duration: 0.25 }, { pitch: 'A4', duration: 0.25 }, { pitch: 'A4', duration: 0.25 },
+    { pitch: 'B4', duration: 0.25 }, { pitch: 'C5', duration: 0.25 }, { pitch: 'B4', duration: 0.5 },
+    { pitch: 'A4', duration: 0.5 }, { pitch: 'G4', duration: 0.5 }, { pitch: 'E4', duration: 0.5 }, { pitch: 'G4', duration: 0.5 },
+    { pitch: 'A4', duration: 1 }, { pitch: 'REST', duration: 0.5 }, { pitch: 'E5', duration: 0.5 },
+    { pitch: 'D5', duration: 0.25 }, { pitch: 'D5', duration: 0.25 }, { pitch: 'D5', duration: 0.25 }, { pitch: 'D5', duration: 0.25 },
+    { pitch: 'C5', duration: 0.25 }, { pitch: 'C5', duration: 0.25 }, { pitch: 'D5', duration: 0.5 },
+    { pitch: 'E5', duration: 0.5 }, { pitch: 'D5', duration: 0.5 }, { pitch: 'C5', duration: 0.5 }, { pitch: 'B4', duration: 0.5 },
+    { pitch: 'A4', duration: 1 }, { pitch: 'REST', duration: 1 },
+  ],
+  bass: [
+    { pitch: 'A3', duration: 0.25 }, { pitch: 'A3', duration: 0.25 }, { pitch: 'A3', duration: 0.25 }, { pitch: 'E3', duration: 0.25 },
+    { pitch: 'A3', duration: 0.25 }, { pitch: 'E3', duration: 0.25 }, { pitch: 'A3', duration: 0.5 },
+    { pitch: 'A3', duration: 0.25 }, { pitch: 'A3', duration: 0.25 }, { pitch: 'A3', duration: 0.25 }, { pitch: 'E3', duration: 0.25 },
+    { pitch: 'G3', duration: 0.25 }, { pitch: 'G3', duration: 0.25 }, { pitch: 'G3', duration: 0.5 },
+    { pitch: 'F3', duration: 0.5 }, { pitch: 'F3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 },
+    { pitch: 'A3', duration: 1 }, { pitch: 'A3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 },
+    { pitch: 'D3', duration: 0.25 }, { pitch: 'D3', duration: 0.25 }, { pitch: 'D3', duration: 0.25 }, { pitch: 'A3', duration: 0.25 },
+    { pitch: 'D3', duration: 0.25 }, { pitch: 'A3', duration: 0.25 }, { pitch: 'D3', duration: 0.5 },
+    { pitch: 'E3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 },
+    { pitch: 'A3', duration: 1 }, { pitch: 'A3', duration: 1 },
+  ],
+};
+
+// Digital Dreams - Melodic, uplifting
+const DIGITAL_DREAMS: BGMTrack = {
+  name: 'Digital Dreams',
+  tempo: 130,
+  melody: [
+    { pitch: 'G4', duration: 0.5 }, { pitch: 'A4', duration: 0.5 }, { pitch: 'B4', duration: 0.5 }, { pitch: 'D5', duration: 0.5 },
+    { pitch: 'E5', duration: 1 }, { pitch: 'D5', duration: 0.5 }, { pitch: 'B4', duration: 0.5 },
+    { pitch: 'G4', duration: 0.5 }, { pitch: 'A4', duration: 0.5 }, { pitch: 'B4', duration: 0.5 }, { pitch: 'D5', duration: 0.5 },
+    { pitch: 'C5', duration: 1 }, { pitch: 'B4', duration: 0.5 }, { pitch: 'A4', duration: 0.5 },
+    { pitch: 'G4', duration: 0.5 }, { pitch: 'A4', duration: 0.5 }, { pitch: 'B4', duration: 0.5 }, { pitch: 'D5', duration: 0.5 },
+    { pitch: 'E5', duration: 1 }, { pitch: 'G5', duration: 0.5 }, { pitch: 'F#5', duration: 0.5 },
+    { pitch: 'E5', duration: 0.5 }, { pitch: 'D5', duration: 0.5 }, { pitch: 'B4', duration: 0.5 }, { pitch: 'A4', duration: 0.5 },
+    { pitch: 'G4', duration: 2 },
+    { pitch: 'B4', duration: 0.5 }, { pitch: 'C5', duration: 0.5 }, { pitch: 'D5', duration: 0.5 }, { pitch: 'E5', duration: 0.5 },
+    { pitch: 'F#5', duration: 1 }, { pitch: 'E5', duration: 0.5 }, { pitch: 'D5', duration: 0.5 },
+    { pitch: 'B4', duration: 0.5 }, { pitch: 'C5', duration: 0.5 }, { pitch: 'D5', duration: 0.5 }, { pitch: 'E5', duration: 0.5 },
+    { pitch: 'D5', duration: 1 }, { pitch: 'C5', duration: 0.5 }, { pitch: 'B4', duration: 0.5 },
+    { pitch: 'A4', duration: 0.5 }, { pitch: 'B4', duration: 0.5 }, { pitch: 'C5', duration: 0.5 }, { pitch: 'D5', duration: 0.5 },
+    { pitch: 'E5', duration: 1 }, { pitch: 'D5', duration: 0.5 }, { pitch: 'C5', duration: 0.5 },
+    { pitch: 'B4', duration: 0.5 }, { pitch: 'A4', duration: 0.5 }, { pitch: 'G4', duration: 0.5 }, { pitch: 'F#4', duration: 0.5 },
+    { pitch: 'G4', duration: 2 },
+  ],
+  bass: [
+    { pitch: 'G3', duration: 1 }, { pitch: 'D3', duration: 1 },
+    { pitch: 'G3', duration: 1 }, { pitch: 'D3', duration: 1 },
+    { pitch: 'C3', duration: 1 }, { pitch: 'G3', duration: 1 },
+    { pitch: 'C3', duration: 1 }, { pitch: 'D3', duration: 1 },
+    { pitch: 'G3', duration: 1 }, { pitch: 'D3', duration: 1 },
+    { pitch: 'E3', duration: 1 }, { pitch: 'B3', duration: 1 },
+    { pitch: 'C3', duration: 1 }, { pitch: 'D3', duration: 1 },
+    { pitch: 'G3', duration: 2 },
+    { pitch: 'B3', duration: 1 }, { pitch: 'F#3', duration: 1 },
+    { pitch: 'B3', duration: 1 }, { pitch: 'F#3', duration: 1 },
+    { pitch: 'G3', duration: 1 }, { pitch: 'D3', duration: 1 },
+    { pitch: 'G3', duration: 1 }, { pitch: 'D3', duration: 1 },
+    { pitch: 'A3', duration: 1 }, { pitch: 'E3', duration: 1 },
+    { pitch: 'C3', duration: 1 }, { pitch: 'D3', duration: 1 },
+    { pitch: 'G3', duration: 1 }, { pitch: 'D3', duration: 1 },
+    { pitch: 'G3', duration: 2 },
+  ],
+};
+
+// Retro Wave - Synthwave inspired
+const RETRO_WAVE: BGMTrack = {
+  name: 'Retro Wave',
+  tempo: 118,
+  melody: [
+    { pitch: 'A4', duration: 0.5 }, { pitch: 'C5', duration: 0.5 }, { pitch: 'E5', duration: 1 },
+    { pitch: 'E5', duration: 0.5 }, { pitch: 'D5', duration: 0.5 }, { pitch: 'C5', duration: 1 },
+    { pitch: 'A4', duration: 0.5 }, { pitch: 'C5', duration: 0.5 }, { pitch: 'E5', duration: 1 },
+    { pitch: 'G5', duration: 0.5 }, { pitch: 'F5', duration: 0.5 }, { pitch: 'E5', duration: 1 },
+    { pitch: 'D5', duration: 0.5 }, { pitch: 'E5', duration: 0.5 }, { pitch: 'F5', duration: 0.5 }, { pitch: 'E5', duration: 0.5 },
+    { pitch: 'D5', duration: 1 }, { pitch: 'C5', duration: 1 },
+    { pitch: 'B4', duration: 0.5 }, { pitch: 'C5', duration: 0.5 }, { pitch: 'D5', duration: 0.5 }, { pitch: 'E5', duration: 0.5 },
+    { pitch: 'A4', duration: 2 },
+    { pitch: 'A4', duration: 0.5 }, { pitch: 'B4', duration: 0.5 }, { pitch: 'C5', duration: 1 },
+    { pitch: 'C5', duration: 0.5 }, { pitch: 'D5', duration: 0.5 }, { pitch: 'E5', duration: 1 },
+    { pitch: 'E5', duration: 0.5 }, { pitch: 'F5', duration: 0.5 }, { pitch: 'G5', duration: 1 },
+    { pitch: 'G5', duration: 0.5 }, { pitch: 'F5', duration: 0.5 }, { pitch: 'E5', duration: 1 },
+    { pitch: 'D5', duration: 0.5 }, { pitch: 'C5', duration: 0.5 }, { pitch: 'B4', duration: 0.5 }, { pitch: 'C5', duration: 0.5 },
+    { pitch: 'D5', duration: 1 }, { pitch: 'E5', duration: 1 },
+    { pitch: 'C5', duration: 0.5 }, { pitch: 'B4', duration: 0.5 }, { pitch: 'A4', duration: 0.5 }, { pitch: 'G4', duration: 0.5 },
+    { pitch: 'A4', duration: 2 },
+  ],
+  bass: [
+    { pitch: 'A3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 },
+    { pitch: 'A3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 },
+    { pitch: 'A3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 },
+    { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 },
+    { pitch: 'D3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 }, { pitch: 'D3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 },
+    { pitch: 'G3', duration: 0.5 }, { pitch: 'D3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 },
+    { pitch: 'E3', duration: 0.5 }, { pitch: 'B3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'B3', duration: 0.5 },
+    { pitch: 'A3', duration: 1 }, { pitch: 'A3', duration: 1 },
+    { pitch: 'A3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 },
+    { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 },
+    { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'B3', duration: 0.5 },
+    { pitch: 'E3', duration: 0.5 }, { pitch: 'B3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'B3', duration: 0.5 },
+    { pitch: 'D3', duration: 0.5 }, { pitch: 'A3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 }, { pitch: 'D3', duration: 0.5 },
+    { pitch: 'G3', duration: 0.5 }, { pitch: 'D3', duration: 0.5 }, { pitch: 'C3', duration: 0.5 }, { pitch: 'G3', duration: 0.5 },
+    { pitch: 'E3', duration: 0.5 }, { pitch: 'B3', duration: 0.5 }, { pitch: 'E3', duration: 0.5 }, { pitch: 'B3', duration: 0.5 },
+    { pitch: 'A3', duration: 1 }, { pitch: 'A3', duration: 1 },
+  ],
+};
+
+const BGM_TRACKS: BGMTrack[] = [KOROBEINIKI, CYBERPUNK_RUSH, NEON_CASCADE, PIXEL_STORM, DIGITAL_DREAMS, RETRO_WAVE];
 
 class BGMEngine {
   private audioContext: AudioContext | null = null;
