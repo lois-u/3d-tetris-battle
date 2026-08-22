@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1f2d1f">
+<title>모바일 전쟁게임</title>
+<style>
+:root{--safe-top:env(safe-area-inset-top,0px);--safe-right:env(safe-area-inset-right,0px);--safe-bottom:env(safe-area-inset-bottom,0px);--safe-left:env(safe-area-inset-left,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;user-select:none}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;background:#1f2d1f;touch-action:none;position:fixed;inset:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{min-height:100dvh}
+canvas{position:fixed;inset:0;width:100vw;height:100dvh;display:block;touch-action:none}
+.hud{position:fixed;left:calc(12px + var(--safe-left));top:calc(10px + var(--safe-top));z-index:10;color:#fff;font-size:17px;font-weight:900;text-shadow:0 2px 4px rgba(0,0,0,.7);pointer-events:none}
+.controls{position:fixed;inset:0;z-index:20;pointer-events:none}
+.joystick{position:absolute;left:calc(18px + var(--safe-left));bottom:calc(18px + var(--safe-bottom));width:145px;height:145px;border-radius:50%;background:rgba(0,0,0,.22);border:2px solid rgba(255,255,255,.18);box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);pointer-events:auto;touch-action:none}
+.stick{position:absolute;left:50%;top:50%;width:66px;height:66px;margin-left:-33px;margin-top:-33px;border-radius:50%;background:rgba(255,255,255,.30);border:2px solid rgba(255,255,255,.38);box-shadow:0 5px 16px rgba(0,0,0,.28);transform:translate(0,0);pointer-events:none}
+.shoot{position:absolute;right:calc(24px + var(--safe-right));bottom:calc(32px + var(--safe-bottom));width:96px;height:96px;border-radius:50%;border:3px solid rgba(255,255,255,.34);background:rgba(177,36,36,.72);color:#fff;font-size:20px;font-weight:1000;box-shadow:0 8px 28px rgba(0,0,0,.35);pointer-events:auto;touch-action:none}.shoot:active{transform:scale(.95)}
+.gameover{display:none;position:fixed;left:50%;top:39%;transform:translate(-50%,-50%);z-index:30;color:#fff;font-size:38px;line-height:1.1;font-weight:1000;text-align:center;text-shadow:0 3px 10px #000}
+.restart{display:none;position:fixed;left:50%;top:55%;transform:translate(-50%,-50%);z-index:30;border:0;border-radius:18px;padding:15px 24px;background:#fff;color:#111;font-size:18px;font-weight:900;box-shadow:0 8px 30px rgba(0,0,0,.35);touch-action:manipulation}
+@media(max-width:430px){.joystick{width:132px;height:132px}.stick{width:60px;height:60px;margin-left:-30px;margin-top:-30px}.shoot{width:88px;height:88px;font-size:18px}.hud{font-size:16px}}
+@media(orientation:landscape) and (max-height:500px){.joystick{width:118px;height:118px;bottom:calc(10px + var(--safe-bottom))}.stick{width:54px;height:54px;margin-left:-27px;margin-top:-27px}.shoot{width:82px;height:82px;bottom:calc(16px + var(--safe-bottom));right:calc(18px + var(--safe-right))}.hud{font-size:15px}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud" class="hud">체력 100 · 점수 0</div>
+<div class="controls"><div id="joystick" class="joystick"><div id="stick" class="stick"></div></div><button id="shoot" class="shoot" type="button">발사</button></div>
+<div id="gameover" class="gameover">게임 오버</div><button id="restart" class="restart" type="button">다시 시작</button>
+<script>
+(()=>{
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d',{alpha:false}),hud=document.getElementById('hud'),joystick=document.getElementById('joystick'),stick=document.getElementById('stick'),shootBtn=document.getElementById('shoot'),gameoverEl=document.getElementById('gameover'),restartBtn=document.getElementById('restart');
+let W=0,H=0,DPR=1,lastFrame=performance.now(),player,bullets,enemies,particles,score,gameOver,spawnTimer,shotTimer;const input={moveX:0,moveY:0,shoot:false},keys=new Set();
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}function distance(ax,ay,bx,by){return Math.hypot(ax-bx,ay-by)}
+function resize(){W=Math.max(320,innerWidth);H=Math.max(320,innerHeight);DPR=Math.min(devicePixelRatio||1,2);canvas.width=Math.floor(W*DPR);canvas.height=Math.floor(H*DPR);canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);if(player){player.x=clamp(player.x,24,W-24);player.y=clamp(player.y,24,H-24)}}
+addEventListener('resize',resize,{passive:true});addEventListener('orientationchange',()=>setTimeout(resize,120),{passive:true});
+function reset(){player={x:W/2,y:H/2,r:18,hp:100,speed:240,angle:-Math.PI/2};bullets=[];enemies=[];particles=[];score=0;gameOver=false;spawnTimer=0;shotTimer=0;input.moveX=input.moveY=0;input.shoot=false;stick.style.transform='translate(0,0)';gameoverEl.style.display='none';restartBtn.style.display='none';hud.textContent='체력 100 · 점수 0'}
+function spawnEnemy(){const side=Math.floor(Math.random()*4);let x,y;if(side===0){x=Math.random()*W;y=-35}else if(side===1){x=W+35;y=Math.random()*H}else if(side===2){x=Math.random()*W;y=H+35}else{x=-35;y=Math.random()*H}const tough=Math.random()<Math.min(.35,score/200);enemies.push({x,y,r:tough?22:16,hp:tough?3:1,speed:tough?75:105})}
+function fire(){if(gameOver)return;const speed=540;bullets.push({x:player.x+Math.cos(player.angle)*28,y:player.y+Math.sin(player.angle)*28,vx:Math.cos(player.angle)*speed,vy:Math.sin(player.angle)*speed,r:4})}
+function burst(x,y,count=10){for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2,s=40+Math.random()*180;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.25+Math.random()*.35,maxLife:.6})}}
+function getMovement(){let x=input.moveX,y=input.moveY;if(keys.has('ArrowLeft')||keys.has('KeyA'))x-=1;if(keys.has('ArrowRight')||keys.has('KeyD'))x+=1;if(keys.has('ArrowUp')||keys.has('KeyW'))y-=1;if(keys.has('ArrowDown')||keys.has('KeyS'))y+=1;const len=Math.hypot(x,y);if(len>1){x/=len;y/=len}return{x,y}}
+function update(dt){if(gameOver)return;const mv=getMovement();if(Math.abs(mv.x)>.01||Math.abs(mv.y)>.01){player.x+=mv.x*player.speed*dt;player.y+=mv.y*player.speed*dt;player.angle=Math.atan2(mv.y,mv.x)}player.x=clamp(player.x,24,W-24);player.y=clamp(player.y,24,H-24);shotTimer-=dt;if((input.shoot||keys.has('Space'))&&shotTimer<=0){fire();shotTimer=.17}spawnTimer-=dt;if(spawnTimer<=0){spawnEnemy();spawnTimer=Math.max(.35,1-score*.004)}for(const b of bullets){b.x+=b.vx*dt;b.y+=b.vy*dt}bullets=bullets.filter(b=>b.x>-60&&b.x<W+60&&b.y>-60&&b.y<H+60);for(const e of enemies){const a=Math.atan2(player.y-e.y,player.x-e.x);e.x+=Math.cos(a)*e.speed*dt;e.y+=Math.sin(a)*e.speed*dt}for(let i=enemies.length-1;i>=0;i--){const e=enemies[i];for(let j=bullets.length-1;j>=0;j--){const b=bullets[j];if(distance(e.x,e.y,b.x,b.y)<e.r+b.r){bullets.splice(j,1);e.hp--;burst(b.x,b.y,4);if(e.hp<=0){burst(e.x,e.y,15);enemies.splice(i,1);score+=10}break}}}for(let i=enemies.length-1;i>=0;i--){const e=enemies[i];if(distance(e.x,e.y,player.x,player.y)<e.r+player.r){enemies.splice(i,1);player.hp-=15;burst(e.x,e.y,18);if(navigator.vibrate)navigator.vibrate(35);if(player.hp<=0){player.hp=0;gameOver=true;gameoverEl.style.display='block';restartBtn.style.display='block'}}}for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=Math.pow(.05,dt);p.vy*=Math.pow(.05,dt);p.life-=dt}particles=particles.filter(p=>p.life>0);hud.textContent=`체력 ${player.hp} · 점수 ${score}`}
+function drawTank(x,y,angle,enemy=false,big=false){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.fillStyle=enemy?(big?'#6a1616':'#952828'):'#1f3a20';ctx.fillRect(-17,-13,34,26);ctx.fillStyle=enemy?'#351010':'#142614';ctx.fillRect(-20,-16,7,32);ctx.fillRect(13,-16,7,32);ctx.fillStyle=enemy?'#b64a4a':'#557d50';ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.fill();ctx.fillStyle='#202020';ctx.fillRect(3,-3,27,6);ctx.restore()}
+function draw(){ctx.fillStyle='#627b5b';ctx.fillRect(0,0,W,H);ctx.globalAlpha=.12;ctx.fillStyle='#263b24';for(let x=10;x<W;x+=64)for(let y=10;y<H;y+=64)ctx.fillRect(x+((y/64)%2)*14,y,4,4);ctx.globalAlpha=1;for(const p of particles){ctx.globalAlpha=clamp(p.life/p.maxLife,0,1);ctx.fillStyle='#ffd36b';ctx.fillRect(p.x-2,p.y-2,4,4)}ctx.globalAlpha=1;ctx.fillStyle='#ffe384';for(const b of bullets){ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill()}for(const e of enemies){const a=Math.atan2(player.y-e.y,player.x-e.x);drawTank(e.x,e.y,a,true,e.r>18)}if(!gameOver)drawTank(player.x,player.y,player.angle,false,false)}
+function frame(now){const dt=Math.min((now-lastFrame)/1000,.033);lastFrame=now;update(dt);draw();requestAnimationFrame(frame)}
+let joystickPointerId=null;function updateJoystick(clientX,clientY){const rect=joystick.getBoundingClientRect(),cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;let dx=clientX-cx,dy=clientY-cy;const max=rect.width*.30,len=Math.hypot(dx,dy);if(len>max){dx=dx/len*max;dy=dy/len*max}input.moveX=dx/max;input.moveY=dy/max;stick.style.transform=`translate(${dx}px,${dy}px)`}
+joystick.addEventListener('pointerdown',e=>{e.preventDefault();joystickPointerId=e.pointerId;joystick.setPointerCapture(e.pointerId);updateJoystick(e.clientX,e.clientY)});joystick.addEventListener('pointermove',e=>{if(e.pointerId!==joystickPointerId)return;e.preventDefault();updateJoystick(e.clientX,e.clientY)});function endJoystick(e){if(joystickPointerId!==null&&e.pointerId!==joystickPointerId)return;joystickPointerId=null;input.moveX=input.moveY=0;stick.style.transform='translate(0,0)'}joystick.addEventListener('pointerup',endJoystick);joystick.addEventListener('pointercancel',endJoystick);joystick.addEventListener('lostpointercapture',()=>{joystickPointerId=null;input.moveX=input.moveY=0;stick.style.transform='translate(0,0)'});
+let shootPointerId=null;shootBtn.addEventListener('pointerdown',e=>{e.preventDefault();shootPointerId=e.pointerId;shootBtn.setPointerCapture(e.pointerId);input.shoot=true;if(shotTimer<=0){fire();shotTimer=.17}});function stopShoot(e){if(shootPointerId!==null&&e.pointerId!==shootPointerId)return;shootPointerId=null;input.shoot=false}shootBtn.addEventListener('pointerup',stopShoot);shootBtn.addEventListener('pointercancel',stopShoot);shootBtn.addEventListener('lostpointercapture',()=>{shootPointerId=null;input.shoot=false});
+addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();keys.add(e.code)},{passive:false});addEventListener('keyup',e=>keys.delete(e.code));document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});document.addEventListener('contextmenu',e=>e.preventDefault());restartBtn.addEventListener('click',reset);resize();reset();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
