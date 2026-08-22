@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>별 먹기 게임</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%; overflow: hidden;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #111827;
+    color: white;
+    touch-action: none;
+  }
+  #wrap { height: 100%; display: grid; place-items: center; }
+  #gameBox {
+    width: min(100vw, 720px);
+    height: min(100vh, 900px);
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,.08) 0 2px, transparent 3px),
+      radial-gradient(circle at 80% 30%, rgba(255,255,255,.08) 0 2px, transparent 3px),
+      linear-gradient(#18243a, #0f172a);
+  }
+  canvas { width: 100%; height: 100%; display: block; }
+  #hud {
+    position: absolute; left: 14px; top: 12px; right: 14px;
+    display: flex; justify-content: space-between; gap: 10px;
+    pointer-events: none; font-weight: 800; font-size: 18px;
+    text-shadow: 0 2px 5px #000;
+  }
+  #controls {
+    position: absolute; bottom: 18px; left: 0; right: 0;
+    display: flex; justify-content: center; gap: 10px;
+  }
+  .pad {
+    display: grid; grid-template-columns: 62px 62px 62px;
+    grid-template-rows: 62px 62px; gap: 6px;
+  }
+  button {
+    border: 0; border-radius: 18px;
+    background: rgba(255,255,255,.14); color: white;
+    font-size: 25px; font-weight: 900;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+  }
+  button:active { transform: scale(.94); background: rgba(255,255,255,.25); }
+  #up { grid-column: 2; grid-row: 1; }
+  #left { grid-column: 1; grid-row: 2; }
+  #down { grid-column: 2; grid-row: 2; }
+  #right { grid-column: 3; grid-row: 2; }
+  #gameOver {
+    position: absolute; inset: 0; display: none; place-items: center;
+    background: rgba(0,0,0,.52);
+    text-align: center;
+  }
+  #gameOver .card {
+    background: rgba(15,23,42,.92);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 24px; padding: 28px;
+    min-width: 250px;
+  }
+  #restart {
+    margin-top: 14px; padding: 12px 18px; font-size: 17px;
+    background: #2563eb;
+  }
+  .hint {
+    position:absolute; bottom: 150px; left:0; right:0;
+    text-align:center; font-size:13px; opacity:.72; pointer-events:none;
+  }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="gameBox">
+    <canvas id="game"></canvas>
+    <div id="hud">
+      <div>⭐ 점수: <span id="score">0</span></div>
+      <div>❤️ <span id="lives">3</span></div>
+    </div>
+    <div class="hint">별을 먹고 빨간 적을 피해!</div>
+    <div id="controls">
+      <div class="pad">
+        <button id="up">▲</button>
+        <button id="left">◀</button>
+        <button id="down">▼</button>
+        <button id="right">▶</button>
+      </div>
+    </div>
+    <div id="gameOver">
+      <div class="card">
+        <h2>게임 끝!</h2>
+        <div>최종 점수: <b id="finalScore">0</b></div>
+        <button id="restart">다시 하기</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const scoreEl = document.getElementById("score");
+const livesEl = document.getElementById("lives");
+const gameOverEl = document.getElementById("gameOver");
+const finalScoreEl = document.getElementById("finalScore");
+const restartBtn = document.getElementById("restart");
+let W=0,H=0,dpr=1;
+function resize(){
+  const r = canvas.getBoundingClientRect();
+  dpr = Math.max(1, Math.min(2, devicePixelRatio || 1));
+  canvas.width = Math.floor(r.width*dpr);
+  canvas.height = Math.floor(r.height*dpr);
+  W = r.width; H = r.height;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+addEventListener("resize", resize);
+const player = { x: 150, y: 220, r: 18, speed: 240 };
+let star = { x: 330, y: 220, r: 13 };
+let enemies = [];
+let score = 0;
+let lives = 3;
+let running = true;
+let invincible = 0;
+const keys = { up:false, down:false, left:false, right:false };
+function rand(min,max){ return Math.random()*(max-min)+min; }
+function dist(a,b){ return Math.hypot(a.x-b.x,a.y-b.y); }
+function spawnStar(){
+  const safeBottom = 165;
+  star.x = rand(28, Math.max(29, W-28));
+  star.y = rand(55, Math.max(56, H-safeBottom));
+}
+function spawnEnemy(){
+  const edge = Math.floor(Math.random()*4);
+  let x,y;
+  if(edge===0){ x=-20; y=rand(40,H-160); }
+  if(edge===1){ x=W+20; y=rand(40,H-160); }
+  if(edge===2){ x=rand(20,W-20); y=-20; }
+  if(edge===3){ x=rand(20,W-20); y=H-145; }
+  enemies.push({x,y,r:16,speed:75 + score*2.5 + rand(0,25)});
+}
+function reset(){
+  score = 0; lives = 3; running = true; invincible = 0;
+  enemies = [];
+  player.x = W/2; player.y = Math.min(H/2, H-220);
+  scoreEl.textContent = score;
+  livesEl.textContent = lives;
+  gameOverEl.style.display = "none";
+  spawnStar();
+  for(let i=0;i<3;i++) spawnEnemy();
+}
+function update(dt){
+  if(!running) return;
+  invincible = Math.max(0, invincible-dt);
+  let dx=(keys.right?1:0)-(keys.left?1:0);
+  let dy=(keys.down?1:0)-(keys.up?1:0);
+  const len=Math.hypot(dx,dy)||1;
+  dx/=len; dy/=len;
+  player.x += dx*player.speed*dt;
+  player.y += dy*player.speed*dt;
+  const bottomLimit = H-150;
+  player.x = Math.max(player.r, Math.min(W-player.r, player.x));
+  player.y = Math.max(45+player.r, Math.min(bottomLimit-player.r, player.y));
+  for(const e of enemies){
+    const vx=player.x-e.x, vy=player.y-e.y;
+    const l=Math.hypot(vx,vy)||1;
+    e.x += vx/l*e.speed*dt;
+    e.y += vy/l*e.speed*dt;
+    if(invincible<=0 && dist(player,e)<player.r+e.r-3){
+      lives--;
+      livesEl.textContent = lives;
+      invincible = 1.25;
+      e.x = rand(10,W-10);
+      e.y = 40;
+      if(lives<=0){
+        running=false;
+        finalScoreEl.textContent=score;
+        gameOverEl.style.display="grid";
+      }
+    }
+  }
+  if(dist(player,star)<player.r+star.r){
+    score++;
+    scoreEl.textContent=score;
+    spawnStar();
+    if(score%3===0 && enemies.length<10) spawnEnemy();
+  }
+}
+function starPath(cx,cy,spikes,outerR,innerR){
+  let rot=Math.PI/2*3, step=Math.PI/spikes;
+  ctx.beginPath();
+  ctx.moveTo(cx,cy-outerR);
+  for(let i=0;i<spikes;i++){
+    ctx.lineTo(cx+Math.cos(rot)*outerR, cy+Math.sin(rot)*outerR); rot+=step;
+    ctx.lineTo(cx+Math.cos(rot)*innerR, cy+Math.sin(rot)*innerR); rot+=step;
+  }
+  ctx.closePath();
+}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.globalAlpha=.12;
+  ctx.strokeStyle="#ffffff";
+  ctx.lineWidth=1;
+  for(let x=0;x<W;x+=40){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
+  for(let y=0;y<H;y+=40){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
+  ctx.globalAlpha=1;
+  ctx.save();
+  ctx.shadowBlur=18; ctx.shadowColor="#facc15";
+  ctx.fillStyle="#facc15";
+  starPath(star.x,star.y,5,star.r+3,star.r*.5);
+  ctx.fill();
+  ctx.restore();
+  for(const e of enemies){
+    ctx.save();
+    ctx.shadowBlur=10; ctx.shadowColor="#ef4444";
+    ctx.fillStyle="#ef4444";
+    ctx.beginPath(); ctx.arc(e.x,e.y,e.r,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle="#fff";
+    ctx.beginPath();ctx.arc(e.x-5,e.y-4,3,0,Math.PI*2);ctx.arc(e.x+5,e.y-4,3,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+  ctx.save();
+  if(invincible>0 && Math.floor(invincible*12)%2===0) ctx.globalAlpha=.25;
+  ctx.shadowBlur=12; ctx.shadowColor="#60a5fa";
+  ctx.fillStyle="#60a5fa";
+  ctx.beginPath();ctx.arc(player.x,player.y,player.r,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#fff";
+  ctx.beginPath();
+  ctx.arc(player.x-6,player.y-4,3,0,Math.PI*2);
+  ctx.arc(player.x+6,player.y-4,3,0,Math.PI*2);
+  ctx.fill();
+  ctx.strokeStyle="#0f172a"; ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(player.x,player.y+3,7,0.15,Math.PI-.15);ctx.stroke();
+  ctx.restore();
+}
+let prev=performance.now();
+function loop(now){
+  const dt=Math.min(.033,(now-prev)/1000); prev=now;
+  update(dt); draw(); requestAnimationFrame(loop);
+}
+addEventListener("keydown",e=>{
+  if(["ArrowUp","w","W"].includes(e.key)) keys.up=true;
+  if(["ArrowDown","s","S"].includes(e.key)) keys.down=true;
+  if(["ArrowLeft","a","A"].includes(e.key)) keys.left=true;
+  if(["ArrowRight","d","D"].includes(e.key)) keys.right=true;
+});
+addEventListener("keyup",e=>{
+  if(["ArrowUp","w","W"].includes(e.key)) keys.up=false;
+  if(["ArrowDown","s","S"].includes(e.key)) keys.down=false;
+  if(["ArrowLeft","a","A"].includes(e.key)) keys.left=false;
+  if(["ArrowRight","d","D"].includes(e.key)) keys.right=false;
+});
+function bindHold(id,key){
+  const b=document.getElementById(id);
+  const on=e=>{e.preventDefault();keys[key]=true;};
+  const off=e=>{e.preventDefault();keys[key]=false;};
+  b.addEventListener("pointerdown",on);
+  b.addEventListener("pointerup",off);
+  b.addEventListener("pointercancel",off);
+  b.addEventListener("pointerleave",off);
+}
+bindHold("up","up"); bindHold("down","down"); bindHold("left","left"); bindHold("right","right");
+restartBtn.addEventListener("click", reset);
+resize();
+reset();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
