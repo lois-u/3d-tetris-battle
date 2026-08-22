@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<title>2D 전쟁게임</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#111;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+canvas{display:block;width:100vw;height:100vh;background:linear-gradient(#556b2f,#3f5122);touch-action:none}
+#hud{position:fixed;left:12px;top:10px;color:#fff;font-weight:800;text-shadow:0 2px 3px #000;z-index:5}
+#msg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:#0008;color:#fff;z-index:9;text-align:center}
+#msg h1{font-size:42px;margin:0 0 8px}#msg button{font-size:20px;padding:12px 22px;border:0;border-radius:12px}
+.pad{position:fixed;bottom:20px;width:128px;height:128px;border-radius:50%;background:#ffffff22;border:2px solid #ffffff44;z-index:6;touch-action:none}
+#move{left:18px}#aim{right:18px}.knob{position:absolute;left:39px;top:39px;width:48px;height:48px;border-radius:50%;background:#ffffff66;border:2px solid #fff8}
+#fire{position:fixed;right:150px;bottom:34px;width:72px;height:72px;border-radius:50%;border:2px solid #ffaaaa;background:#d7263d99;color:#fff;font-weight:900;z-index:7;touch-action:none}
+#tips{position:fixed;right:10px;top:10px;color:#fff8;font-size:12px;text-align:right}@media (pointer:fine){.pad,#fire{opacity:.25}}
+</style></head>
+<body>
+<div id="hud">체력: <span id="hp">100</span> | 점수: <span id="score">0</span></div>
+<div id="tips">PC: WASD 이동 · 마우스 조준 · 클릭/Space 사격<br>모바일: 왼쪽 이동 · 오른쪽 조준 · FIRE</div>
+<canvas id="game"></canvas>
+<div id="move" class="pad"><div class="knob"></div></div><div id="aim" class="pad"><div class="knob"></div></div><button id="fire">FIRE</button>
+<div id="msg"><h1>GAME OVER</h1><p id="final"></p><button onclick="restart()">다시 시작</button></div>
+<script>
+const c=document.getElementById('game'),ctx=c.getContext('2d');const hpEl=document.getElementById('hp'),scoreEl=document.getElementById('score'),msg=document.getElementById('msg'),finalEl=document.getElementById('final');
+let W,H,dpr,player,bullets,enemies,particles,score,gameOver,last,spawnTimer,mouse={x:0,y:0,down:false},keys={};let moveV={x:0,y:0},aimV={x:1,y:0},fireHeld=false;
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
+function restart(){player={x:W/2,y:H/2,r:16,hp:100,speed:240,angle:0,shotCd:0};bullets=[];enemies=[];particles=[];score=0;gameOver=false;spawnTimer=0;last=performance.now();hpEl.textContent=100;scoreEl.textContent=0;msg.style.display='none'}restart();
+addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.code==='Space'){e.preventDefault();shoot()}});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);c.addEventListener('pointermove',e=>{mouse.x=e.clientX;mouse.y=e.clientY});c.addEventListener('pointerdown',e=>{mouse.down=true;mouse.x=e.clientX;mouse.y=e.clientY;shoot()});addEventListener('pointerup',()=>mouse.down=false);
+function setupPad(id,target){const pad=document.getElementById(id),knob=pad.querySelector('.knob');let pid=null;function set(e){const r=pad.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy,max=45,len=Math.hypot(dx,dy)||1;if(len>max){dx=dx/len*max;dy=dy/len*max}knob.style.transform=`translate(${dx}px,${dy}px)`;target.x=dx/max;target.y=dy/max}pad.addEventListener('pointerdown',e=>{pid=e.pointerId;pad.setPointerCapture(pid);set(e)});pad.addEventListener('pointermove',e=>{if(e.pointerId===pid)set(e)});function end(e){if(e.pointerId===pid){pid=null;target.x=0;target.y=0;knob.style.transform='translate(0,0)'}}pad.addEventListener('pointerup',end);pad.addEventListener('pointercancel',end)}
+setupPad('move',moveV);setupPad('aim',aimV);const fireBtn=document.getElementById('fire');fireBtn.addEventListener('pointerdown',e=>{e.preventDefault();fireHeld=true;shoot()});['pointerup','pointercancel','pointerleave'].forEach(x=>fireBtn.addEventListener(x,()=>fireHeld=false));
+function shoot(){if(gameOver||player.shotCd>0)return;player.shotCd=.16;const a=player.angle;bullets.push({x:player.x+Math.cos(a)*22,y:player.y+Math.sin(a)*22,vx:Math.cos(a)*620,vy:Math.sin(a)*620,r:4,life:1.2});for(let i=0;i<5;i++)particles.push({x:player.x+Math.cos(a)*20,y:player.y+Math.sin(a)*20,vx:(Math.random()-.5)*90+Math.cos(a)*80,vy:(Math.random()-.5)*90+Math.sin(a)*80,life:.18})}
+function spawnEnemy(){const side=Math.floor(Math.random()*4);let x,y;if(side===0){x=Math.random()*W;y=-30}if(side===1){x=W+30;y=Math.random()*H}if(side===2){x=Math.random()*W;y=H+30}if(side===3){x=-30;y=Math.random()*H}const level=1+score/150;enemies.push({x,y,r:15,hp:1+Math.floor(level/3),speed:65+Math.random()*35+level*3,hitCd:0})}
+function hit(a,b){return Math.hypot(a.x-b.x,a.y-b.y)<a.r+b.r}
+function update(dt){if(gameOver)return;player.shotCd=Math.max(0,player.shotCd-dt);let dx=(keys['d']?1:0)-(keys['a']?1:0),dy=(keys['s']?1:0)-(keys['w']?1:0);dx+=moveV.x;dy+=moveV.y;let l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}player.x=Math.max(player.r,Math.min(W-player.r,player.x+dx*player.speed*dt));player.y=Math.max(player.r,Math.min(H-player.r,player.y+dy*player.speed*dt));if(Math.hypot(aimV.x,aimV.y)>.15)player.angle=Math.atan2(aimV.y,aimV.x);else if(mouse.x||mouse.y)player.angle=Math.atan2(mouse.y-player.y,mouse.x-player.x);if(mouse.down||fireHeld)shoot();spawnTimer-=dt;if(spawnTimer<=0){spawnEnemy();spawnTimer=Math.max(.35,1.1-score*.002)}for(const b of bullets){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt}bullets=bullets.filter(b=>b.life>0&&b.x>-20&&b.x<W+20&&b.y>-20&&b.y<H+20);for(const e of enemies){const a=Math.atan2(player.y-e.y,player.x-e.x);e.x+=Math.cos(a)*e.speed*dt;e.y+=Math.sin(a)*e.speed*dt;e.hitCd-=dt;if(hit(e,player)&&e.hitCd<=0){e.hitCd=.65;player.hp-=12;hpEl.textContent=Math.max(0,player.hp);if(player.hp<=0){gameOver=true;finalEl.textContent=`최종 점수: ${score}`;msg.style.display='flex'}}}for(const b of bullets){for(const e of enemies){if(!b.dead&&!e.dead&&hit(b,e)){b.dead=true;e.hp--;if(e.hp<=0){e.dead=true;score+=10;scoreEl.textContent=score}}}}bullets=bullets.filter(b=>!b.dead);enemies=enemies.filter(e=>!e.dead)}
+function draw(){ctx.clearRect(0,0,W,H);ctx.globalAlpha=.12;ctx.strokeStyle='#fff';for(let x=0;x<W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}for(let y=0;y<H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}ctx.globalAlpha=1;ctx.fillStyle='#2d3d1c';[[W*.2,H*.25,85,30],[W*.66,H*.2,110,32],[W*.35,H*.7,120,35],[W*.75,H*.68,65,70]].forEach(o=>ctx.fillRect(...o));ctx.fillStyle='#ffe66d';for(const b of bullets){ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill()}for(const e of enemies){ctx.save();ctx.translate(e.x,e.y);ctx.fillStyle='#b22222';ctx.beginPath();ctx.arc(0,0,e.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#222';ctx.fillRect(-10,-4,24,8);ctx.restore()}ctx.save();ctx.translate(player.x,player.y);ctx.rotate(player.angle);ctx.fillStyle='#1f6feb';ctx.beginPath();ctx.arc(0,0,player.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#111';ctx.fillRect(5,-5,27,10);ctx.restore();ctx.fillStyle='#0008';ctx.fillRect(player.x-22,player.y-28,44,6);ctx.fillStyle=player.hp>35?'#63e66d':'#ff5b5b';ctx.fillRect(player.x-22,player.y-28,44*Math.max(0,player.hp)/100,6)}
+function loop(t){let dt=Math.min(.033,(t-last)/1000);last=t;update(dt);draw();requestAnimationFrame(loop)}requestAnimationFrame(loop);
+</script></body></html>
