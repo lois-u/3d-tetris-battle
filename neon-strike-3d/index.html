@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<title>NEON STRIKE 3D</title>
+<style>
+*{box-sizing:border-box;touch-action:none;user-select:none;-webkit-user-select:none}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#91b9d5;font-family:system-ui,sans-serif;color:#fff}canvas{position:fixed;inset:0;width:100%;height:100%;display:block}.hud{position:fixed;inset:0;pointer-events:none}.top{position:absolute;top:max(8px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));display:flex;justify-content:space-between;gap:8px;font-size:clamp(11px,2.5vw,16px);font-weight:900;text-shadow:0 2px 6px #123}.joy{position:absolute;left:max(10px,calc(env(safe-area-inset-left) + 4px));bottom:max(10px,calc(env(safe-area-inset-bottom) + 4px));width:min(24vw,118px);aspect-ratio:1;border-radius:50%;border:2px solid #fff6;background:#ffffff22;pointer-events:auto}.stick{position:absolute;width:44%;aspect-ratio:1;left:28%;top:28%;border-radius:50%;background:#d6f3ffdd;box-shadow:0 0 18px #64d5ff88}.look{position:absolute;right:0;top:0;width:58%;height:100%;pointer-events:auto}.blast,.charge{position:absolute;border:0;border-radius:50%;font-weight:1000;color:#fff;pointer-events:auto}.blast{right:max(12px,calc(env(safe-area-inset-right) + 8px));bottom:max(12px,calc(env(safe-area-inset-bottom) + 8px));width:min(15vw,74px);aspect-ratio:1;background:radial-gradient(circle at 35% 30%,#d7f8ff,#3eaef2 55%,#23568f);box-shadow:0 0 24px #4ecbff99}.charge{right:max(88px,calc(env(safe-area-inset-right) + 84px));bottom:max(18px,calc(env(safe-area-inset-bottom) + 12px));width:min(11vw,54px);aspect-ratio:1;background:#19324acc}.ammo{position:absolute;right:max(14px,calc(env(safe-area-inset-right) + 10px));bottom:max(88px,calc(env(safe-area-inset-bottom) + 82px));font-size:clamp(18px,4vw,27px);font-weight:1000;text-shadow:0 2px 6px #123}.cross{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:30px;text-shadow:0 0 10px #3ff}.start,.rot{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:linear-gradient(#82b4d9f2,#24496cf2);text-align:center;padding:20px}.card{width:min(92vw,520px);padding:22px;border-radius:22px;background:#16344ed9;border:1px solid #ffffff55;box-shadow:0 20px 50px #10263a66}.card h1{font-size:clamp(30px,8vw,44px);margin:0 0 8px}.card p{opacity:.9}.card button{font-size:18px;font-weight:900;padding:14px 30px;border:0;border-radius:14px;background:#b8efff;color:#11324a}.rot{display:none;z-index:30;font-size:28px}.hit{position:fixed;inset:0;pointer-events:none;background:#ff365533;opacity:0;transition:opacity .08s}@media (orientation:portrait) and (max-width:900px){.rot{display:grid}}@media (max-height:430px){.joy{width:min(20vw,94px)}.blast{width:min(12vw,62px)}.charge{width:min(9vw,46px);right:max(76px,calc(env(safe-area-inset-right) + 72px))}.ammo{bottom:max(70px,calc(env(safe-area-inset-bottom) + 66px));font-size:18px}.card{padding:14px}.card h1{font-size:30px}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div class="hud">
+  <div class="top"><span>NEON STRIKE 3D</span><span>ARMOR <b id="hp">100</b> · KILLS <b id="kills">0</b></span></div>
+  <div class="cross">＋</div>
+  <div id="joy" class="joy"><div id="stick" class="stick"></div></div>
+  <div id="look" class="look"></div>
+  <button id="blast" class="blast">BLAST</button>
+  <button id="charge" class="charge">CHARGE</button>
+  <div class="ammo"><b id="ammo">24</b>/120</div>
+</div>
+<div id="hit" class="hit"></div>
+<div id="start" class="start"><div class="card"><h1>NEON STRIKE 3D</h1><p>진짜 WebGL 3D · 모바일 가로모드 · 왼쪽 이동 · 오른쪽 드래그 시점 · BLAST</p><button id="go" type="button">전투 시작</button></div></div>
+<div class="rot">📱<br>가로로 돌려주세요</div>
+<script>
+(()=>{
+const canvas=document.getElementById('game'); const gl=canvas.getContext('webgl',{antialias:true,alpha:false});
+const $=id=>document.getElementById(id); if(!gl){$('go').textContent='WebGL 미지원';return;}
+const vs=`attribute vec3 p;attribute vec3 n;uniform mat4 mvp;uniform mat4 model;varying vec3 vn;varying vec3 wp;void main(){vec4 w=model*vec4(p,1.0);wp=w.xyz;vn=mat3(model)*n;gl_Position=mvp*vec4(p,1.0);}`;
+const fs=`precision mediump float;varying vec3 vn;varying vec3 wp;uniform vec3 color;uniform vec3 lightDir;void main(){float d=max(.18,dot(normalize(vn),normalize(lightDir)));float fog=clamp((length(wp.xz)-8.0)/45.0,0.0,.55);vec3 c=color*(.42+.72*d);c=mix(c,vec3(.55,.72,.82),fog);gl_FragColor=vec4(c,1.0);}`;
+function sh(type,src){let s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s}
+const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,vs));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(prog);gl.useProgram(prog);
+const loc={p:gl.getAttribLocation(prog,'p'),n:gl.getAttribLocation(prog,'n'),mvp:gl.getUniformLocation(prog,'mvp'),model:gl.getUniformLocation(prog,'model'),color:gl.getUniformLocation(prog,'color'),lightDir:gl.getUniformLocation(prog,'lightDir')};gl.uniform3f(loc.lightDir,.4,1,.2);
+const cubeVerts=new Float32Array([
+-1,-1,1,0,0,1, 1,-1,1,0,0,1, 1,1,1,0,0,1, -1,-1,1,0,0,1, 1,1,1,0,0,1,-1,1,1,0,0,1,
+1,-1,-1,0,0,-1,-1,-1,-1,0,0,-1,-1,1,-1,0,0,-1,1,-1,-1,0,0,-1,-1,1,-1,0,0,-1,1,1,-1,0,0,-1,
+-1,-1,-1,-1,0,0,-1,-1,1,-1,0,0,-1,1,1,-1,0,0,-1,-1,-1,-1,0,0,-1,-1,1,1,-1,0,0,-1,1,-1,-1,0,0,
+1,-1,1,1,0,0,1,-1,-1,1,0,0,1,1,-1,1,0,0,1,1,-1,1,1,0,0,1,1,1,1,0,0,1,1,1,-1,1,0,0,
+-1,1,1,0,1,0,1,1,1,0,1,0,1,1,-1,0,1,0,-1,1,1,0,1,0,1,1,-1,0,1,0,-1,1,-1,0,1,0,
+-1,-1,-1,0,-1,0,1,-1,-1,0,-1,0,1,-1,1,0,-1,0,-1,-1,-1,0,-1,0,1,-1,1,0,-1,0,-1,-1,1,0,-1,0]);
+const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,cubeVerts,gl.STATIC_DRAW);gl.enableVertexAttribArray(loc.p);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,24,0);gl.enableVertexAttribArray(loc.n);gl.vertexAttribPointer(loc.n,3,gl.FLOAT,false,24,12);
+const M=()=>new Float32Array(16);function ident(o){o.fill(0);o[0]=o[5]=o[10]=o[15]=1;return o}function mul(o,a,b){let r=M();for(let c=0;c<4;c++)for(let rr=0;rr<4;rr++)r[c*4+rr]=a[0*4+rr]*b[c*4+0]+a[1*4+rr]*b[c*4+1]+a[2*4+rr]*b[c*4+2]+a[3*4+rr]*b[c*4+3];o.set(r);return o}
+function perspective(o,fovy,asp,n,f){let q=1/Math.tan(fovy/2);o.fill(0);o[0]=q/asp;o[5]=q;o[10]=(f+n)/(n-f);o[11]=-1;o[14]=2*f*n/(n-f);return o}function translate(o,a,x,y,z){ident(o);o[12]=x;o[13]=y;o[14]=z;if(a){let r=M();mul(r,a,o);o.set(r)}return o}function scale(o,a,x,y,z){ident(o);o[0]=x;o[5]=y;o[10]=z;if(a){let r=M();mul(r,a,o);o.set(r)}return o}function rotY(o,a,r){ident(o);let c=Math.cos(r),s=Math.sin(r);o[0]=c;o[2]=-s;o[8]=s;o[10]=c;if(a){let q=M();mul(q,a,o);o.set(q)}return o}function rotX(o,a,r){ident(o);let c=Math.cos(r),s=Math.sin(r);o[5]=c;o[6]=s;o[9]=-s;o[10]=c;if(a){let q=M();mul(q,a,o);o.set(q)}return o}
+let W=0,H=0,dpr=1;function resize(){dpr=Math.min(devicePixelRatio||1,1.7);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;gl.viewport(0,0,canvas.width,canvas.height)}addEventListener('resize',resize);resize();
+let running=false,last=0,held=false,fireAt=0;let player={x:0,z:0,yaw:0,pitch:0,hp:100,ammo:24,reserve:120,kills:0};let enemies=[];let joy={x:0,y:0,id:null};let lookId=null,lastLook={x:0,y:0};
+function spawn(){let a=Math.random()*Math.PI*2,r=10+Math.random()*16;enemies.push({x:player.x+Math.cos(a)*r,z:player.z+Math.sin(a)*r,hp:60,attack:0,nextHit:0})}for(let i=0;i<6;i++)spawn();
+function modelMatrix(x,y,z,sx,sy,sz,ry=0,rx=0){let m=ident(M()),t=M(),r=M(),q=M();translate(t,null,x,y,z);rotY(r,null,ry);rotX(q,null,rx);let tmp=M();mul(tmp,t,r);mul(m,tmp,q);let sc=M();scale(sc,null,sx,sy,sz);let out=M();mul(out,m,sc);return out}
+function drawCube(vp,x,y,z,sx,sy,sz,color,ry=0,rx=0){let model=modelMatrix(x,y,z,sx,sy,sz,ry,rx),mvp=M();mul(mvp,vp,model);gl.uniformMatrix4fv(loc.model,false,model);gl.uniformMatrix4fv(loc.mvp,false,mvp);gl.uniform3fv(loc.color,color);gl.drawArrays(gl.TRIANGLES,0,36)}
+function viewProj(){let proj=M();perspective(proj,Math.PI/3,canvas.width/canvas.height,.08,80);let view=ident(M()),r1=M(),r2=M(),t=M(),tmp=M();rotX(r1,null,-player.pitch);rotY(r2,null,-player.yaw);translate(t,null,-player.x,-1.65,-player.z);mul(tmp,r2,t);mul(view,r1,tmp);let vp=M();mul(vp,proj,view);return vp}
+function render(t){gl.enable(gl.DEPTH_TEST);gl.clearColor(.56,.73,.84,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);let vp=viewProj();
+ drawCube(vp,0,-.25,0,40,.25,40,[.25,.34,.39]);
+ for(let x=-30;x<=30;x+=6)for(let z=-30;z<=30;z+=6)if((x+z)%12===0)drawCube(vp,x,.6,z,.8,.6,.8,[.35,.48,.56]);
+ for(let e of enemies){let dx=player.x-e.x,dz=player.z-e.z,ang=Math.atan2(dx,dz);let swing=e.attack>0?Math.sin(Math.min(1,e.attack)*Math.PI):0;drawCube(vp,e.x,1.2,e.z,.38,.72,.28,[.38,.19,.28],ang);drawCube(vp,e.x,2.05,e.z,.29,.29,.29,[.12,.16,.21],ang);drawCube(vp,e.x,2.06,e.z-.3,.18,.035,.02,[1,.2,.32],ang);drawCube(vp,e.x-.48,1.38,e.z,.1,.48,.1,[.32,.17,.25],ang, swing*.9);drawCube(vp,e.x+.48,1.38,e.z,.1,.48,.1,[.32,.17,.25],ang,-swing*.9)}
+ let cy=Math.cos(player.yaw),sy=Math.sin(player.yaw),rightX=cy,rightZ=-sy,fwdX=sy,fwdZ=cy;let bx=player.x+fwdX*.72+rightX*.32,bz=player.z+fwdZ*.72+rightZ*.32,by=1.28;
+ drawCube(vp,bx,by,bz,.18,.12,.48,[.08,.12,.16],player.yaw);drawCube(vp,bx+fwdX*.52,by,bz+fwdZ*.52,.09,.08,.22,[.12,.18,.24],player.yaw);drawCube(vp,bx-rightX*.12,by-.22,bz-rightZ*.12,.11,.25,.12,[.65,.46,.34],player.yaw,-.2);drawCube(vp,bx+rightX*.24,by-.08,bz+rightZ*.24,.10,.16,.18,[.65,.46,.34],player.yaw,.25);
+}
+function update(dt,t){let sp=4.8;player.x+=(Math.cos(player.yaw)*joy.x-Math.sin(player.yaw)*(-joy.y))*sp*dt;player.z+=(Math.sin(player.yaw)*joy.x+Math.cos(player.yaw)*(-joy.y))*sp*dt;for(let e of enemies){let dx=player.x-e.x,dz=player.z-e.z,d=Math.hypot(dx,dz);if(d>1.9){e.x+=dx/d*1.35*dt;e.z+=dz/d*1.35*dt}if(e.attack>0)e.attack+=dt*2.7;if(e.attack>1)e.attack=0;if(d<2.1&&t>e.nextHit){e.attack=.001;e.nextHit=t+1200;setTimeout(()=>{let dd=Math.hypot(player.x-e.x,player.z-e.z);if(dd<2.35&&running){player.hp=Math.max(0,player.hp-12);$('hp').textContent=player.hp;let h=$('hit');h.style.opacity=1;setTimeout(()=>h.style.opacity=0,90);if(player.hp<=0){player.hp=100;player.x=0;player.z=0;$('hp').textContent=100}}},300)}}if(held)fire()}
+function fire(){let now=performance.now();if(!running||player.ammo<=0||now-fireAt<150)return;fireAt=now;player.ammo--;$('ammo').textContent=player.ammo;let best=null,bestErr=.16,bestD=999;for(let e of enemies){let dx=e.x-player.x,dz=e.z-player.z,d=Math.hypot(dx,dz);let ang=Math.atan2(dx,dz)-player.yaw;ang=Math.atan2(Math.sin(ang),Math.cos(ang));let err=Math.abs(ang);if(err<bestErr&&d<bestD){best=e;bestD=d}}if(best){best.hp-=30;if(best.hp<=0){enemies.splice(enemies.indexOf(best),1);player.kills++;$('kills').textContent=player.kills;setTimeout(spawn,300)}}}
+function charge(){let n=Math.min(24-player.ammo,player.reserve);player.ammo+=n;player.reserve-=n;$('ammo').textContent=player.ammo}
+function frame(t){requestAnimationFrame(frame);let dt=Math.min(.033,(t-last)/1000||0);last=t;if(running)update(dt,t);render(t)}requestAnimationFrame(frame);
+const J=$('joy'),S=$('stick');function moveStick(e){let r=J.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),m=r.width*.3,len=Math.hypot(dx,dy)||1,k=Math.min(1,m/len);dx*=k;dy*=k;joy.x=dx/m;joy.y=dy/m;S.style.transform=`translate(${dx}px,${dy}px)`}J.addEventListener('pointerdown',e=>{joy.id=e.pointerId;J.setPointerCapture(e.pointerId);moveStick(e)});J.addEventListener('pointermove',e=>{if(e.pointerId===joy.id)moveStick(e)});function endJoy(e){if(e.pointerId===joy.id){joy={x:0,y:0,id:null};S.style.transform=''}}J.addEventListener('pointerup',endJoy);J.addEventListener('pointercancel',endJoy);
+const L=$('look');L.addEventListener('pointerdown',e=>{lookId=e.pointerId;lastLook={x:e.clientX,y:e.clientY};L.setPointerCapture(e.pointerId)});L.addEventListener('pointermove',e=>{if(e.pointerId!==lookId)return;player.yaw+=(e.clientX-lastLook.x)*.0055;player.pitch=Math.max(-.55,Math.min(.55,player.pitch-(e.clientY-lastLook.y)*.0038));lastLook={x:e.clientX,y:e.clientY}});L.addEventListener('pointerup',e=>{if(e.pointerId===lookId)lookId=null});
+$('blast').addEventListener('pointerdown',e=>{e.preventDefault();held=true;fire()});$('blast').addEventListener('pointerup',()=>held=false);$('blast').addEventListener('pointercancel',()=>held=false);$('charge').addEventListener('pointerdown',charge);
+function startGame(){if(running)return;running=true;$('start').style.display='none';last=performance.now();try{screen.orientation?.lock?.('landscape').catch(()=>{})}catch{}}$('go').addEventListener('click',startGame);$('go').addEventListener('pointerup',startGame);
+})();
+</script>
+</body>
+</html>
